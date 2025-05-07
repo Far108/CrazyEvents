@@ -32,46 +32,17 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            //Hardcoded list
-            val hardcodedEvents = listOf(
-                Event(id = 1, name = "Tech Conference 2025", date = "2025-05-07", location = "Marx-Halle, 1030 Wien"),
-                Event(id = 2, name = "Sommerfest", date = "2025-08-15", location = "Stadtpark, 1020 Wien"),
-                Event(id = 3, name = "Sommernachtskonzert der Wiener Philharmoniker", date = "2025-06-13", location = "Schloss Schoenbrunn, 1130 Wien")
-            )
+
 
             @Composable
-            fun HardcodedEventsScreen() {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    LazyColumn(modifier = Modifier.padding(innerPadding)) {
-                        items(hardcodedEvents) { event ->
-                            EventItem(event = event)
+            fun Greeting(name: String, modifier: Modifier = Modifier) {
+                Text(
+                    text = "Hello $name!",
+                    modifier = modifier
+                )
+            }
+
+
         }
-    }
-}
-
-@Composable
-fun EventItem(event: Event) {
-    Card(modifier = Modifier.padding(8.dp)) {
-        Column(modifier = Modifier.padding(8.dp)) {
-            Text(text = "Name: ${event.name}")
-            Text(text = "Date: ${event.date}")
-            Text(text = "Location: ${event.location}")
-        }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    CrazyEventsTheme {
-        HardcodedEventsScreen()
     }
 }
