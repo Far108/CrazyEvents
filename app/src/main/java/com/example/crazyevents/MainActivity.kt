@@ -1,6 +1,5 @@
 package com.example.crazyevents
 
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.crazyevents.navigation.Navigation
 import androidx.compose.ui.unit.dp
 import com.example.crazyevents.ui.theme.CrazyEventsTheme
 
@@ -27,31 +27,24 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CrazyEventsTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    HardcodedEventsScreen()
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    Navigation(modifier = Modifier.padding(innerPadding))
                 }
             }
-        }
-    }
-}
 
-//Hardcoded list
-val hardcodedEvents = listOf(
-    Event(id = 1, name = "Tech Conference 2025", date = "2025-05-07", location = "Marx-Halle, 1030 Wien"),
-    Event(id = 2, name = "Sommerfest", date = "2025-08-15", location = "Stadtpark, 1020 Wien"),
-    Event(id = 3, name = "Sommernachtskonzert der Wiener Philharmoniker", date = "2025-06-13", location = "Schloss Schoenbrunn, 1130 Wien")
-)
+            //Hardcoded list
+            val hardcodedEvents = listOf(
+                Event(id = 1, name = "Tech Conference 2025", date = "2025-05-07", location = "Marx-Halle, 1030 Wien"),
+                Event(id = 2, name = "Sommerfest", date = "2025-08-15", location = "Stadtpark, 1020 Wien"),
+                Event(id = 3, name = "Sommernachtskonzert der Wiener Philharmoniker", date = "2025-06-13", location = "Schloss Schoenbrunn, 1130 Wien")
+            )
 
-@Composable
-fun HardcodedEventsScreen() {
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-        LazyColumn(modifier = Modifier.padding(innerPadding)) {
-            items(hardcodedEvents) { event ->
-                EventItem(event = event)
-            }
+            @Composable
+            fun HardcodedEventsScreen() {
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    LazyColumn(modifier = Modifier.padding(innerPadding)) {
+                        items(hardcodedEvents) { event ->
+                            EventItem(event = event)
         }
     }
 }
