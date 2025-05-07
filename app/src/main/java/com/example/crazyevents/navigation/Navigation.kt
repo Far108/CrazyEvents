@@ -26,7 +26,7 @@ fun Navigation(modifier: Modifier = Modifier) {
         modifier = modifier,
         bottomBar = {
             // BottomBar nur zeigen, wenn nicht im Login
-            if (currentRoute != Screen.LoginScreen.route) {
+            if (currentRoute != Screen.LoginScreen.route) {     //TODO: anders lösen
                 BottomBar(navController)
             }
         }
