@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.crazyevents.navigation.Screen
 
 @Composable
 fun LoginRegisterScreen(
@@ -51,13 +52,13 @@ fun LoginRegisterScreen(
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-           // Button(onClick = { onLogin(email, password) }) {
-             //   Text("Login")
+           Button(onClick = { navHostController.navigate(Screen.MainScreen.route) }) {
+             Text("Login")
             }
           //  Button(onClick = { onRegister(email, password) }) {
           //      Text("Registrieren")
             }
-        }
+        }}
 
 
 /*

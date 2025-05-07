@@ -1,8 +1,9 @@
 package com.example.crazyevents.navigation
 
 sealed class Screen(val route: String) {
-    object LoginScreen : Screen(route = "login_screen")
-    {
-
-    }
+    object LoginScreen   : Screen("login_screen")
+    object MainScreen      : Screen("main_screen")
+    object ExploreScreen    : Screen("explore_screen")
+    object BlogScreen      : Screen("blog_screen")
+    object ProfileScreen  : Screen("profile_screen")
 }
