@@ -34,9 +34,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.crazyevents.R
 import com.example.crazyevents.dataLayer.Event
 import com.example.crazyevents.dataLayer.getDummyEvents
 
@@ -46,6 +48,11 @@ import com.example.crazyevents.dataLayer.getDummyEvents
 fun MainScreen(eventList: List<Event> = getDummyEvents()) {
 
     var currentSort by remember { mutableStateOf(SortOption.NONE) }
+
+    val sortedEvents = remember(currentSort) {
+        sortEvents(eventList, currentSort)
+    }
+
 
     @Composable
     fun filterButton() {
@@ -89,14 +96,26 @@ fun MainScreen(eventList: List<Event> = getDummyEvents()) {
                     )
                     Spacer(modifier = Modifier.height(4.dp))
 
-                    Text(
-                        text = event.date,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Text(
-                        text = event.location,
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                    Row(Modifier.fillMaxWidth()) {
+                        Column {
+                            Text(
+                                text = event.date,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Text(
+                                text = event.location,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.weight(1f))
+
+                        Text(
+                            text = "${event.going} ${stringResource(R.string.participants)}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 }
             }
         }
@@ -116,16 +135,30 @@ fun MainScreen(eventList: List<Event> = getDummyEvents()) {
                     filterButton()
                     SortMenu(selected = currentSort) { newSort ->
                         currentSort = newSort
-                        /* Neu sortieren… */
                     }
                 }
             })
         }
     ) { innerPadding ->
         LazyColumn(modifier = Modifier.padding(innerPadding)) {
-            items(eventList) { event ->
+            items(sortedEvents) { event ->
                 EventCard(event = event)
             }
         }
+    }
+}
+
+
+fun sortEvents(
+    eventList: List<Event>,
+    option: SortOption
+): List<Event> { // Sortiere die Liste basierend auf der ausgewählten Option
+    return when (option) {
+        SortOption.NONE -> eventList
+        SortOption.DATE_ASC -> eventList.sortedBy { it.date }
+        SortOption.DATE_DESC -> eventList.sortedByDescending { it.date }
+        SortOption.TITLE -> eventList.sortedBy { it.title.lowercase() }
+        SortOption.LOCATION -> eventList.sortedBy { it.location.lowercase() }
+        SortOption.GOING -> eventList.sortedBy { it.going }
     }
 }
