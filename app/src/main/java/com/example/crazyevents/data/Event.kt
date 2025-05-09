@@ -1,4 +1,4 @@
-package com.example.crazyevents.dataLayer
+package com.example.crazyevents.data
 
 import com.example.crazyevents.R
 
@@ -19,8 +19,8 @@ fun getDummyEvents(): List<Event>{
         Event(
             title       = "Summer Festival",
             description = "Ein buntes Open-Air-Konzert im Stadtpark",
-            location = "Stadtpark",
-            address = "iwo",
+            location    = "Stadtpark",
+            address     = "iwo",
             creator     = "John Doe",
             date        = "2025-06-21 18:00",
             category    = "Music"
