@@ -23,6 +23,15 @@ class MainScreenViewModel : ViewModel() {
         fetchEvents()
     }
 
+    fun insertEvents(eventList: List<Event>) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+            _events.value = eventList
+            _isLoading.value = false
+        }
+    }
+
     fun fetchEvents() {
         viewModelScope.launch {
             _isLoading.value = true

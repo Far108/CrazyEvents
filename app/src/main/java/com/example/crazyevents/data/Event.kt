@@ -23,7 +23,8 @@ fun getDummyEvents(): List<Event>{
             address     = "iwo",
             creator     = "John Doe",
             date        = "2025-06-21 18:00",
-            category    = "Music"
+            category    = "Music",
+            going = 1
         ),
         Event(
             title       = "Art Exhibition",
@@ -33,6 +34,7 @@ fun getDummyEvents(): List<Event>{
             category    = "Art",
             location = "Stadtpark",
             address = "iwo",
+            going = 2
         ),
         Event(
             title       = "Tech Meetup",
@@ -42,6 +44,7 @@ fun getDummyEvents(): List<Event>{
             category    = "Tech",
             location = "Stadtpark",
             address = "iwo",
+            going = 3
         ),
         Event(
             title       = "Cooking Class",
@@ -51,6 +54,7 @@ fun getDummyEvents(): List<Event>{
             category    = "Cooking",
             location = "Stadtpark",
             address = "iwo",
+            going = 40
         ),
         Event(
             title       = "City Marathon",
@@ -60,6 +64,7 @@ fun getDummyEvents(): List<Event>{
             category    = "Sports",
             location = "Stadtpark",
             address = "iwo",
+            going = 100
         )
     )
 }
