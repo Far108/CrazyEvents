@@ -16,4 +16,7 @@ interface BackendApiService {
 
     @GET("/posters/toggle/{id}") // Replace with the actual endpoint that returns a specific event by ID
     suspend fun toggleFollow(@Path("id") userId: String): Response<Poster>
+
+    @GET("/events/{eventId}")
+    suspend fun getEventbyId(@Path("eventId") eventId: String): Response<Event>
 }

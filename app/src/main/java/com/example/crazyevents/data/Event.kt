@@ -3,6 +3,7 @@ package com.example.crazyevents.data
 import com.example.crazyevents.R
 
 data class Event(
+    val id: String,
     val title: String,
     val description: String,
     val location: String,
@@ -17,6 +18,7 @@ data class Event(
 fun getDummyEvents(): List<Event>{
     return listOf(
         Event(
+            id = "1",
             title       = "Summer Festival",
             description = "Ein buntes Open-Air-Konzert im Stadtpark",
             location    = "Stadtpark",
@@ -27,6 +29,7 @@ fun getDummyEvents(): List<Event>{
             going = 1
         ),
         Event(
+            id = "2",
             title       = "Art Exhibition",
             description = "Zeitgenössische Kunstwerke ausstellen",
             creator     = "Art Gallery",
@@ -37,6 +40,7 @@ fun getDummyEvents(): List<Event>{
             going = 2
         ),
         Event(
+            id = "3",
             title       = "Tech Meetup",
             description = "Neueste Tech-Trends diskutieren",
             creator     = "Tech Community",
@@ -47,6 +51,7 @@ fun getDummyEvents(): List<Event>{
             going = 3
         ),
         Event(
+            id = "4",
             title       = "Cooking Class",
             description = "Italienische Küche selbst zubereiten",
             creator     = "Chef Anna",
@@ -57,6 +62,7 @@ fun getDummyEvents(): List<Event>{
             going = 40
         ),
         Event(
+            id = "5",
             title       = "City Marathon",
             description = "Stadtmarathon für Hobby- und Profi-Läufer",
             creator     = "Sports Club",

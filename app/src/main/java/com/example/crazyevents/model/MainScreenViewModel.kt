@@ -19,6 +19,9 @@ class MainScreenViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
+    private val _selectedEvent = MutableStateFlow<Event?>(null)
+    val selectedEvent: StateFlow<Event?> = _selectedEvent
+
     init {
         fetchEvents()
     }
@@ -29,6 +32,27 @@ class MainScreenViewModel : ViewModel() {
             _error.value = null
             _events.value = eventList
             _isLoading.value = false
+        }
+    }
+
+    fun getEventById(eventId: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+            try {
+                val response = BackendApi.api.getEventbyId(eventId)
+                if (response.isSuccessful) {
+                    _selectedEvent.value = response.body()
+                } else {
+                    _error.value = "Error: ${response.code()} - ${response.message()}"
+                    _selectedEvent.value = null
+                }
+            } catch (e: Exception) {
+                _error.value = "Network Error: ${e.message}"
+                _selectedEvent.value = null
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 

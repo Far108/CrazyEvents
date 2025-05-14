@@ -3,24 +3,22 @@ package com.example.crazyevents.presentation
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.crazyevents.R
+import androidx.navigation.NavHostController
 import com.example.crazyevents.data.Event
 import com.example.crazyevents.model.MainScreenViewModel
+import com.example.crazyevents.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     viewModel: MainScreenViewModel = viewModel(), // Use the MainViewModel
+    navHostController: NavHostController
     // Assuming filterButton and SortMenu are defined elsewhere
 ) {
     // Collect the state flows from the ViewModel
@@ -79,7 +77,7 @@ fun MainScreen(
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
                         // If your Event class had an ID, you would use key = { it.id }
                         items(events) { event ->
-                            EventCard(event = event) // Use your existing EventCard composable
+                            EventCard(event = event) {navHostController.navigate(Screen.EventView.createRoute(event.id))}
                         }
                     }
                 }

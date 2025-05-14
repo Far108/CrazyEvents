@@ -1,5 +1,6 @@
 package com.example.crazyevents.presentation
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -18,10 +19,11 @@ import com.example.crazyevents.R
 import com.example.crazyevents.data.Event
 
 @Composable
-fun EventCard(event: Event) {
+fun EventCard(event: Event, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .padding(8.dp)
+            .clickable(onClick = onClick)
             .fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -75,7 +77,7 @@ fun EventCard(event: Event) {
         }
     }
 }
-
+/*
 
 @Preview(name = "EventCard")
 @Composable
@@ -92,4 +94,4 @@ private fun PreviewEventCard() {
             going = 1
         ),
     )
-}
+}*/
