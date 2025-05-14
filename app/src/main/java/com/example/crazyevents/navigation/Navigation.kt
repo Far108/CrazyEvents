@@ -12,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.crazyevents.data.*
 import com.example.crazyevents.login.LoginRegisterScreen
 import com.example.crazyevents.model.MainScreenViewModel
 import com.example.crazyevents.presentation.BlogScreen
@@ -54,7 +55,15 @@ fun Navigation(modifier: Modifier = Modifier) {
                 BlogScreen()
             }
             composable(Screen.ProfileScreen.route) {
-                ProfileScreen()
+                ProfileScreen(
+                    navController,
+                    userProfile = dummyUser,
+                    onEditClick = { /* TODO */ },
+                    onAddEventClick = { /* TODO */ },
+                    yourEvents = dummyYourEvents,
+                    acceptedEvents = dummyAcceptedEvents,
+                    oldEvents = dummyOldEvents
+                )
             }
             composable(Screen.EventView.route){
                     backStackEntry ->

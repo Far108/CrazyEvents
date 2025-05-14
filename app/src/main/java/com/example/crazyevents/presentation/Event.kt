@@ -87,8 +87,8 @@ fun Event(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = "Besucher: ${event.going ?: 0}")
-            Button(onClick = { /* anzeigen */ }) {
-                Text("Anzeigen")
+            Button(onClick = { /* anzeigen */ }) {                //TODO: Add User to Event Visitor List
+                Text("Besuchen!")
             }
         }
 
