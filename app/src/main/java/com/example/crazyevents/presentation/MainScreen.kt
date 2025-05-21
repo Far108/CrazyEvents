@@ -25,7 +25,17 @@ fun MainScreen(
     val events by viewModel.events.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
+    val reload by viewModel.reloadEventsTrigger.collectAsState()
     var currentSort by remember { mutableStateOf(SortOption.NONE) } // Default sort
+
+
+    LaunchedEffect(reload) {
+        if (reload) {
+            viewModel.fetchEvents()
+            viewModel.resetReloadTrigger()
+        }
+    }
+
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

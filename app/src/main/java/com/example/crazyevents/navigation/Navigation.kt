@@ -33,7 +33,7 @@ fun Navigation(modifier: Modifier = Modifier) {
         bottomBar = {
             // BottomBar nur zeigen, wenn nicht im Login
             if (currentRoute != Screen.LoginScreen.route) {     //TODO: anders lösen
-                BottomBar(navController)
+                BottomBar(navController = navController)
             }
         }
     ) { innerPadding ->

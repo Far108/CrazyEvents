@@ -1,5 +1,8 @@
 package com.example.crazyevents.model
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.crazyevents.api.BackendApi
@@ -21,6 +24,9 @@ class MainScreenViewModel : ViewModel() {
 
     private val _selectedEvent = MutableStateFlow<Event?>(null)
     val selectedEvent: StateFlow<Event?> = _selectedEvent
+
+    private val _reloadEventsTrigger = MutableStateFlow(false)
+    val reloadEventsTrigger: StateFlow<Boolean> = _reloadEventsTrigger
 
     init {
         fetchEvents()
@@ -75,4 +81,12 @@ class MainScreenViewModel : ViewModel() {
             }
         }
     }
+
+    fun triggerReload() {
+        _reloadEventsTrigger.value = true
+    }
+    fun resetReloadTrigger() {
+        _reloadEventsTrigger.value = false
+    }
+
 }
