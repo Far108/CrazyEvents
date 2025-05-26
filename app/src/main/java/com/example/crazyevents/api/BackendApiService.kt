@@ -3,7 +3,9 @@ package com.example.crazyevents.api
 import com.example.crazyevents.data.Event
 import com.example.crazyevents.data.Poster
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -19,4 +21,7 @@ interface BackendApiService {
 
     @GET("/events/{eventId}")
     suspend fun getEventbyId(@Path("eventId") eventId: String): Response<Event>
+
+    @POST("/event")
+    suspend fun createEvent(@Body event: Event): Response<Event>
 }

@@ -8,10 +8,10 @@ data class Event(
     val description: String,
     val location: String,
     val address: String,
-    val creator: String,
+    val creator: String?,
     val date: String,
     val category: String,
-    val mainImageUrl: Int = R.drawable.logo,
+    val mainImageUrl: Int? = R.drawable.logo,
     val going: Int? = 0
 )
 
