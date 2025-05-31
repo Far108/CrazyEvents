@@ -1,22 +1,34 @@
 package com.example.crazyevents.login
 
+import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.crazyevents.api.BackendApi
+import com.example.crazyevents.model.AuthRequest
 import com.example.crazyevents.navigation.Screen
+import com.example.crazyevents.utils.TokenManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun LoginRegisterScreen(
     navHostController: NavHostController,
+    context: Context = LocalContext.current
 ) {
-
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var loading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     Column(
         modifier = Modifier
@@ -49,33 +61,72 @@ fun LoginRegisterScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-           Button(onClick = { navHostController.navigate(Screen.MainScreen.route) }) {
-             Text("Login")
+        errorMessage?.let {
+            Text(text = it, color = Color.Red)
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        if (loading) {
+            CircularProgressIndicator()
+        } else {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = {
+                    loading = true
+                    errorMessage = null
+                    CoroutineScope(Dispatchers.IO).launch {
+                        try {
+                            val response = BackendApi.api.login(AuthRequest(email, password))
+                            withContext(Dispatchers.Main) {
+                                loading = false
+                                if (response.isSuccessful) {
+                                    val token = response.body()?.token
+                                    if (token != null) {
+                                        TokenManager.saveToken(context, token)
+                                        navHostController.navigate(Screen.MainScreen.route)
+                                    } else {
+                                        errorMessage = "Ungültige Antwort vom Server"
+                                    }
+                                } else {
+                                    errorMessage = "Login fehlgeschlagen: ${response.code()}"
+                                }
+                            }
+                        } catch (e: Exception) {
+                            withContext(Dispatchers.Main) {
+                                loading = false
+                                errorMessage = "Netzwerkfehler: ${e.message}"
+                            }
+                        }
+                    }
+                }) {
+                    Text("Login")
+                }
+
+                Button(onClick = {
+                    loading = true
+                    errorMessage = null
+                    CoroutineScope(Dispatchers.IO).launch {
+                        try {
+                            val response = BackendApi.api.register(AuthRequest(email, password))
+                            withContext(Dispatchers.Main) {
+                                loading = false
+                                errorMessage = if (response.isSuccessful) {
+                                    "Registrierung erfolgreich. Jetzt einloggen!"
+                                } else {
+                                    "Registrierung fehlgeschlagen: ${response}"
+                                }
+                            }
+                        } catch (e: Exception) {
+                            withContext(Dispatchers.Main) {
+                                loading = false
+                                errorMessage = "Netzwerkfehler: ${e.message}"
+                            }
+                        }
+                    }
+                }) {
+                    Text("Registrieren")
+                }
             }
-          //  Button(onClick = { onRegister(email, password) }) {
-          //      Text("Registrieren")
-            }
-        }}
-
-
-/*
-Usage:
-
-In deiner Activity oder deinem Fragment:
-
-setContent {
-    MaterialTheme {
-        LoginRegisterScreen(
-            onLogin = { email, password ->
-                // Login-Logik hier
-            },
-            onRegister = { email, password ->
-                // Registrierungs-Logik hier
-            }
-        )
+        }
     }
 }
-*/
+

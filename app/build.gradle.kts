@@ -60,6 +60,11 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     // Lifecycle KTX (for ViewModelScope)
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+    implementation(libs.androidx.compiler)
+    implementation("androidx.concurrent:concurrent-futures:1.1.0") {
+        exclude(group = "com.google.guava", module = "listenablefuture")
+    }
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -67,4 +72,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    configurations.all {
+        exclude(group = "com.google.guava", module = "listenablefuture")
+    }
 }

@@ -2,6 +2,8 @@ package com.example.crazyevents.api
 
 import com.example.crazyevents.data.Event
 import com.example.crazyevents.data.Poster
+import com.example.crazyevents.model.AuthRequest
+import com.example.crazyevents.model.AuthResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -24,4 +26,10 @@ interface BackendApiService {
 
     @POST("/event")
     suspend fun createEvent(@Body event: Event): Response<Event>
+
+    @POST("/login")
+    suspend fun login(@Body request: AuthRequest): Response<AuthResponse>
+
+    @POST("/register")
+    suspend fun register(@Body request: AuthRequest): Response<Unit>
 }
