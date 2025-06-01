@@ -7,6 +7,7 @@ import com.example.crazyevents.model.AuthResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -32,4 +33,15 @@ interface BackendApiService {
 
     @POST("/register")
     suspend fun register(@Body request: AuthRequest): Response<Unit>
+
+    @POST("/events/{eventId}/interest")
+    suspend fun toggleEventInterest(
+        @Path("eventId") eventId: String,
+        @Header("Authorization") token: String
+    ): Response<InterestResponse>
 }
+
+data class InterestResponse(
+    val message: String,
+    val goingTo: List<String>
+)

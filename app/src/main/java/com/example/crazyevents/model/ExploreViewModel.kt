@@ -1,19 +1,23 @@
 package com.example.crazyevents.model
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.util.Log
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.crazyevents.api.BackendApi
 import com.example.crazyevents.data.Event
 import com.example.crazyevents.data.Poster
+import com.example.crazyevents.utils.TokenManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 
 class ExploreViewModel : ViewModel() {
-
-    private val _posters = MutableStateFlow<List<Poster>>(emptyList())
-    val posters: StateFlow<List<Poster>> = _posters
 
     private val _events = MutableStateFlow<List<Event>>(emptyList())
     val events: StateFlow<List<Event>> = _events
@@ -24,26 +28,45 @@ class ExploreViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    fun updateFollowStatus(userId: String) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            _error.value = null
-            try {
-                val response = BackendApi.api.toggleFollow(userId)
-                if (response.isSuccessful) {
-                    //_posters.value = response.body() ?: ""
-                    val updatedPoster = response.body()
+    private val _interestedEvents = MutableStateFlow<Set<String>>(emptySet())
+    val interestedEvents: StateFlow<Set<String>> = _interestedEvents.asStateFlow()
 
-                } else {
-                    _error.value = "Error: ${response.code()}"
+    fun updateEventInterest(eventId: String, context: Context) {
+        viewModelScope.launch {
+            val token = TokenManager.getToken(context) ?: return@launch
+            val userId = TokenManager.getUserIdFromToken(token) ?: return@launch
+
+            try {
+                val response = BackendApi.api.toggleEventInterest(eventId, "Bearer $token")
+                if (response.isSuccessful) {
+                    val goingTo = response.body()?.goingTo ?: emptyList()
+
+                    _interestedEvents.update {
+                        if (goingTo.contains(userId)) it + eventId else it - eventId
+                    }
+                    print(interestedEvents)
                 }
             } catch (e: Exception) {
-                _error.value = e.message
-            } finally {
-                _isLoading.value = false
+                Log.e("EventCard", "Fehler: ${e.message}")
             }
         }
     }
+
+    fun loadInterestedEvents(context: Context) {
+        viewModelScope.launch {
+            val token = TokenManager.getToken(context) ?: return@launch
+            val userId = TokenManager.getUserIdFromToken(token) ?: return@launch
+
+            val allEvents = BackendApi.api.getEvents().body() ?: return@launch
+            val userEventIds = allEvents
+                .filter { it.goingUserIds.contains(userId) }
+                .map { it.id }
+
+            _interestedEvents.value = userEventIds.toSet()
+        }
+    }
+
+
 
     fun fetchExploreEvents() {
         viewModelScope.launch {

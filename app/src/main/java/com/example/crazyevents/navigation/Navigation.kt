@@ -49,7 +49,7 @@ fun Navigation(modifier: Modifier = Modifier) {
                 MainScreen( navHostController = navController)
             }
             composable(Screen.ExploreScreen.route) {
-                ExploreScreen()
+                ExploreScreen(navHostController = navController)
             }
             composable(Screen.BlogScreen.route) {
                 BlogScreen()
