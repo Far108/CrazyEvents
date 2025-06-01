@@ -25,6 +25,7 @@ fun LoginRegisterScreen(
     navHostController: NavHostController,
     context: Context = LocalContext.current
 ) {
+    var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
@@ -39,6 +40,16 @@ fun LoginRegisterScreen(
     ) {
         Text(text = "Willkommen", style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = name,
+            onValueChange = { name = it },
+            label = { Text("Name (nur bei Registrierung)") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
             value = email,
@@ -75,7 +86,7 @@ fun LoginRegisterScreen(
                     errorMessage = null
                     CoroutineScope(Dispatchers.IO).launch {
                         try {
-                            val response = BackendApi.api.login(AuthRequest(email, password))
+                            val response = BackendApi.api.login(AuthRequest(email = email, password = password))
                             withContext(Dispatchers.Main) {
                                 loading = false
                                 if (response.isSuccessful) {
@@ -108,13 +119,13 @@ fun LoginRegisterScreen(
                     errorMessage = null
                     CoroutineScope(Dispatchers.IO).launch {
                         try {
-                            val response = BackendApi.api.register(AuthRequest(email, password))
+                            val response = BackendApi.api.register(AuthRequest(name = name, email = email, password = password))
                             withContext(Dispatchers.Main) {
                                 loading = false
                                 errorMessage = if (response.isSuccessful) {
-                                    "Registrierung erfolgreich. Jetzt einloggen!"
+                                    "Registrierung erfolgreich! Jetzt einloggen."
                                 } else {
-                                    "Registrierung fehlgeschlagen: ${response}"
+                                    "Registrierung fehlgeschlagen: ${response.code()}"
                                 }
                             }
                         } catch (e: Exception) {
