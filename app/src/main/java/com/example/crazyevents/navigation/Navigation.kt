@@ -63,6 +63,7 @@ fun Navigation(modifier: Modifier = Modifier) {
                     yourEvents = dummyYourEvents,
                     acceptedEvents = dummyAcceptedEvents,
                     oldEvents = dummyOldEvents
+
                 )
             }
             composable(Screen.EventView.route){
