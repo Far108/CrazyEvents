@@ -90,4 +90,23 @@ class MainScreenViewModel : ViewModel() {
     fun resetReloadTrigger() {
         _reloadEventsTrigger.value = false
     }
+
+    fun addEvent(event: Event) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+            try {
+                val response = BackendApi.api.createEvent(event)
+                if (response.isSuccessful) {
+                    _events.value = _events.value + (response.body() ?: event)
+                } else {
+                    _error.value = "Error: ${response.code()} - ${response.message()}"
+                }
+            } catch (e: Exception) {
+                _error.value = "Network Error: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
 }
