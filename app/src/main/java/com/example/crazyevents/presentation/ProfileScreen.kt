@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -23,9 +24,6 @@ import com.example.crazyevents.login.UserSession
 import com.example.crazyevents.model.ProfileViewModel
 import com.example.crazyevents.navigation.Screen
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.TimeZone
 
@@ -42,7 +40,12 @@ fun ProfileScreen(
     val currentUser = UserSession.currentUser
     val userName = currentUser?.name ?: "Unbekannt"
 
+    val upcomingEvents = acceptedEvents.filter {!isPast(it.date)}
     val oldEvents = acceptedEvents.filter { isPast(it.date) }
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchEvents()
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -92,7 +95,7 @@ fun ProfileScreen(
                 title = "Deine Events",
                 events = yourEvents,
                 showAddButton = true,
-                onAddClick = onAddEventClick
+                onAddClick = {navHostController.navigate(Screen.BlogScreen.route)}
             )
             Spacer(modifier = Modifier.height(16.dp))
         }
@@ -102,7 +105,7 @@ fun ProfileScreen(
             SectionWithTitle(
                 navHostController,
                 title = "Zugesagt",
-                events = acceptedEvents
+                events = upcomingEvents
             )
             Spacer(modifier = Modifier.height(16.dp))
         }
