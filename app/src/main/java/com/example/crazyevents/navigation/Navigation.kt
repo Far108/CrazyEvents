@@ -57,13 +57,8 @@ fun Navigation(modifier: Modifier = Modifier) {
             composable(Screen.ProfileScreen.route) {
                 ProfileScreen(
                     navController,
-                    userProfile = dummyUser,
                     onEditClick = { /* TODO */ },
                     onAddEventClick = { /* TODO */ },
-                    yourEvents = dummyYourEvents,
-                    acceptedEvents = dummyAcceptedEvents,
-                    oldEvents = dummyOldEvents
-
                 )
             }
             composable(Screen.EventView.route){

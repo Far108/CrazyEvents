@@ -2,11 +2,6 @@ package com.example.crazyevents.data
 
 import com.example.crazyevents.R
 
-val dummyUser = UserProfile(
-    id = "01",
-    name = "Max Mustermann"
-)
-// --- Dummy Data ---
 
 // Assume "currentUser" is the user viewing the profile screen.
 // This is just for making the dummy data more logical.

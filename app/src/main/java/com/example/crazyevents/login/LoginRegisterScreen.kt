@@ -80,9 +80,11 @@ fun LoginRegisterScreen(
                                 loading = false
                                 if (response.isSuccessful) {
                                     val token = response.body()?.token
+                                    val user = response.body()?.user
                                     if (token != null) {
                                         TokenManager.saveToken(context, token)
                                         navHostController.navigate(Screen.MainScreen.route)
+                                        UserSession.currentUser = user
                                     } else {
                                         errorMessage = "Ungültige Antwort vom Server"
                                     }
