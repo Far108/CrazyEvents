@@ -70,8 +70,11 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.2.1")
     implementation("com.google.android.material:material:1.11.0")
 
+    implementation(libs.androidx.core.ktx.v1131)
+
+
     dependencies {
-        coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
+        coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
     }
 
     testImplementation(libs.junit)
