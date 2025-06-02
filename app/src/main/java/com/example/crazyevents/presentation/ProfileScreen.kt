@@ -59,7 +59,9 @@ fun ProfileScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Profil", style = MaterialTheme.typography.headlineMedium)
-                TextButton(onClick = onEditClick) {
+                TextButton(onClick = {
+                    navHostController.navigate("settings") // oder Screen.Settings.route
+                }) {
                     Text("Bearbeiten")
                 }
             }

@@ -21,9 +21,14 @@ import com.example.crazyevents.presentation.Event
 import com.example.crazyevents.presentation.ExploreScreen
 import com.example.crazyevents.presentation.MainScreen
 import com.example.crazyevents.presentation.ProfileScreen
+import com.example.crazyevents.presentation.SettingsScreen
 
 @Composable
-fun Navigation(modifier: Modifier = Modifier) {
+fun Navigation(
+    modifier: Modifier = Modifier,
+    currentTheme: String,
+    onThemeChange: (String) -> Unit
+) {
     val navController = rememberNavController()
     val navBackStack by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStack?.destination?.route
@@ -79,6 +84,13 @@ fun Navigation(modifier: Modifier = Modifier) {
                 } else {
                     //TODO: show loading or error
                 }
+            }
+            composable("settings") {
+                SettingsScreen(
+                    navController = navController,
+                    currentTheme = currentTheme,
+                    onThemeChange = onThemeChange
+                )
             }
         }
     }
