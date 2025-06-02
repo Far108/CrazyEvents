@@ -51,6 +51,18 @@ fun BlogScreen(
 
     val submitMessage by viewModel.submitMessage.collectAsState()
 
+    val datePattern = Regex("""\d{4}-\d{2}-\d{2} \d{2}:\d{2}""")
+    val isDateValid = datePattern.matches(date)
+
+    val allFieldsValid = title.isNotBlank() &&
+            description.isNotBlank() &&
+            location.isNotBlank() &&
+            address.isNotBlank() &&
+            category.isNotBlank() &&
+            isDateValid
+
+    if(allFieldsValid) showError = false
+
     Column(
         modifier = Modifier
             .padding(16.dp)
@@ -121,9 +133,14 @@ fun BlogScreen(
             modifier = Modifier.fillMaxWidth(),
             value = date,
             onValueChange = { date = it },
-            label = { Text("Date") },
-            isError = showError && date.isBlank(),
+            label = { Text("Date (yyyy-MM-dd HH:mm)") },
+            isError = showError && !isDateValid,
             singleLine = true,
+            supportingText = {
+                if (showError && !isDateValid) {
+                    Text("Use format: yyyy-MM-dd HH:mm", color = MaterialTheme.colorScheme.error)
+                }
+            }
         )
 
         OutlinedTextField(
@@ -139,8 +156,8 @@ fun BlogScreen(
 
         Button(
             onClick = {
-                showError = title.isBlank()
-                if (!showError) {
+                showError = true
+                if (allFieldsValid) {
                     viewModel.addEvent(
                         Event(
                             title = title,

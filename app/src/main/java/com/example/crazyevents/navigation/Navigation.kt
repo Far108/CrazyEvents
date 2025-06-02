@@ -61,8 +61,7 @@ fun Navigation(
             }
             composable(Screen.ProfileScreen.route) {
                 ProfileScreen(
-                    navController,
-                    onEditClick = { /* TODO */ }
+                    navController
                 )
             }
             composable(Screen.EventView.route){
