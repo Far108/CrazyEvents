@@ -10,6 +10,7 @@ import com.example.crazyevents.api.BackendApiService
 import com.example.crazyevents.data.Event
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class MainScreenViewModel : ViewModel() {
@@ -24,6 +25,11 @@ class MainScreenViewModel : ViewModel() {
     val selectedEvent: StateFlow<Event?> = _selectedEvent
     private val _reloadEventsTrigger = MutableStateFlow(false)
     val reloadEventsTrigger: StateFlow<Boolean> = _reloadEventsTrigger
+
+    // Stateholder addEvents
+    private val _submitMessage = MutableStateFlow<String?>(null)
+    val submitMessage: StateFlow<String?> = _submitMessage.asStateFlow()
+
 
     init {
         fetchEvents()
@@ -95,18 +101,22 @@ class MainScreenViewModel : ViewModel() {
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
+            _submitMessage.value = null
+
             try {
                 val response = BackendApi.api.createEvent(event)
                 if (response.isSuccessful) {
                     _events.value = _events.value + (response.body() ?: event)
+                    _submitMessage.value = "✅ Event wurde erfolgreich gespeichert!"
                 } else {
-                    _error.value = "Error: ${response.code()} - ${response.message()}"
+                    _submitMessage.value = "❌ Fehler: ${response.code()} – ${response.message()}"
                 }
             } catch (e: Exception) {
-                _error.value = "Network Error: ${e.message}"
+                _submitMessage.value = "❌ Netzwerkfehler: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
         }
     }
+
 }

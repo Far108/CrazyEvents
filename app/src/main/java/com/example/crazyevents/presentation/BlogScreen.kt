@@ -12,6 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -48,6 +49,7 @@ fun BlogScreen(
         )
     }
 
+    val submitMessage by viewModel.submitMessage.collectAsState()
 
     Column(
         modifier = Modifier
@@ -133,37 +135,25 @@ fun BlogScreen(
             singleLine = true,
         )
 
-        viewModel.error.value?.let { Text(it) }
+        val submitMessage by viewModel.submitMessage.collectAsState()
 
         Button(
             onClick = {
                 showError = title.isBlank()
                 if (!showError) {
-                    // Handle successful form submission
-                    println("Form submitted: $title, $description, $creator, $location, $address, $date, $category")
-
-                    viewModel.addEvent(Event(
-                        title = title,
-                        description = description,
-                        location = location,
-                        address = address,
-                        date = date,
-                        goingUserIds = emptyList(),
-                        category = category,
-                        id = "",
-                        creator = creator,
-                    ))
-
-                    if (selectedTime != null) {
-                        val cal = Calendar.getInstance()
-                        cal.set(Calendar.HOUR_OF_DAY, selectedTime!!.hour)
-                        cal.set(Calendar.MINUTE, selectedTime!!.minute)
-                        cal.isLenient = false
-                        //Text("Selected time = ${formatter.format(cal.time)}")
-                        println("Selected time = ${formatter.format(cal.time)}")
-                    } else {
-//                        Text("No time selected.")
-                    }
+                    viewModel.addEvent(
+                        Event(
+                            title = title,
+                            description = description,
+                            location = location,
+                            address = address,
+                            date = date,
+                            goingUserIds = emptyList(),
+                            category = category,
+                            id = "",
+                            creator = creator,
+                        )
+                    )
                 }
             },
             modifier = Modifier.fillMaxWidth()
@@ -171,11 +161,22 @@ fun BlogScreen(
             Text("Submit")
         }
 
+        // Fehler bei Validierung (z. B. leeres Feld)
         if (showError) {
             Text(
-                text = "Please fill out the form correctly.",
+                text = "Bitte fülle alle Pflichtfelder aus.",
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall
+            )
+        }
+
+        // Erfolgs- oder Fehlermeldung vom ViewModel
+        submitMessage?.let { message ->
+            Text(
+                text = message,
+                color = if (message.startsWith("✅")) Color.Green else MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(top = 8.dp)
             )
         }
     }
