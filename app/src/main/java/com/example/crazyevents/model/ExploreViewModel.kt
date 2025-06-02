@@ -1,20 +1,21 @@
 package com.example.crazyevents.model
 
-import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import android.util.Log
-import androidx.compose.ui.platform.LocalContext
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.crazyevents.api.BackendApi
 import com.example.crazyevents.data.Event
-import com.example.crazyevents.data.Poster
+import com.example.crazyevents.presentation.SortOption
 import com.example.crazyevents.utils.TokenManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 
 class ExploreViewModel : ViewModel() {
@@ -30,6 +31,9 @@ class ExploreViewModel : ViewModel() {
 
     private val _interestedEvents = MutableStateFlow<Set<String>>(emptySet())
     val interestedEvents: StateFlow<Set<String>> = _interestedEvents.asStateFlow()
+
+    private var allEventsBackup: List<Event> = emptyList()
+
 
     fun updateEventInterest(eventId: String, context: Context) {
         viewModelScope.launch {
@@ -66,8 +70,6 @@ class ExploreViewModel : ViewModel() {
         }
     }
 
-
-
     fun fetchExploreEvents() {
         viewModelScope.launch {
             _isLoading.value = true
@@ -75,7 +77,9 @@ class ExploreViewModel : ViewModel() {
             try {
                 val response = BackendApi.api.getEvents()
                 if (response.isSuccessful) {
-                    _events.value = response.body() ?: emptyList()
+                    val events = response.body() ?: emptyList()
+                    _events.value = events
+                    allEventsBackup = events
                 } else {
                     _error.value = "Error: ${response.code()}"
                 }
@@ -86,4 +90,49 @@ class ExploreViewModel : ViewModel() {
             }
         }
     }
+
+    fun applyFiltersAndSort(
+        category: String?,
+        location: String,
+        date: LocalDate?,
+        sort: SortOption
+    ) {
+        var filtered = _events.value
+
+        if (!category.isNullOrBlank()) {
+            filtered = filtered.filter { it.category.equals(category, ignoreCase = true) }
+        }
+
+        val locationQuery = location.trim().lowercase()
+
+        if (location.isNotBlank()) {
+            filtered = filtered.filter {
+                it.address.lowercase().contains(locationQuery) ||
+                        it.location.lowercase().contains(locationQuery)
+            }
+        }
+
+
+        if (date != null) {
+            filtered = filtered.filter {
+                val eventDate = LocalDate.parse(it.date.substring(0, 10))
+                eventDate == date
+            }
+        }
+
+        _events.value = when (sort) {
+            SortOption.DATE_ASC -> filtered.sortedBy { it.date }
+            SortOption.DATE_DESC -> filtered.sortedByDescending { it.date }
+            SortOption.TITLE -> filtered.sortedBy { it.title }
+            SortOption.LOCATION -> filtered.sortedBy { it.address }
+            SortOption.GOING -> filtered.sortedByDescending { it.goingUserIds.size }
+            else -> filtered
+        }
+    }
+
+    fun resetFilters() {
+        _events.value = allEventsBackup
+    }
+
+
 }

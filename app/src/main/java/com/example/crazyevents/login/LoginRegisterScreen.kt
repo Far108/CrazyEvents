@@ -12,15 +12,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.crazyevents.api.BackendApi
-import com.example.crazyevents.model.AuthRequest
+import com.example.crazyevents.model.AuthViewModel
 import com.example.crazyevents.navigation.Screen
-import com.example.crazyevents.utils.TokenManager
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+
 
 @Composable
 fun LoginRegisterScreen(
@@ -37,7 +32,7 @@ fun LoginRegisterScreen(
 
     LaunchedEffect(statusMessage) {
         if (statusMessage != null) {
-            delay(1000)
+            delay(2000)
             viewModel.clearStatus()
         }
     }

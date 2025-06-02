@@ -1,10 +1,10 @@
-package com.example.crazyevents.login
+package com.example.crazyevents.model
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.crazyevents.api.BackendApi
-import com.example.crazyevents.model.AuthRequest
+import com.example.crazyevents.login.UserSession
 import com.example.crazyevents.utils.TokenManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,15 +37,17 @@ class AuthViewModel : ViewModel() {
                         TokenManager.saveToken(context, token)
                         UserSession.currentUser = user
                         _statusMessage.value = "✅ Login erfolgreich"
-                        delay(1000)
+                        delay(1500)
                         onSuccess()
                     } else {
                         _statusMessage.value = "❌ Ungültige Serverantwort"
                     }
                 } else {
+                    delay(1000)
                     _statusMessage.value = "❌ Login fehlgeschlagen: ${response.code()}"
                 }
             } catch (e: Exception) {
+                delay(1000)
                 _statusMessage.value = "❌ Netzwerkfehler: ${e.message}"
             } finally {
                 _isLoading.value = false
@@ -61,11 +63,14 @@ class AuthViewModel : ViewModel() {
             try {
                 val response = BackendApi.api.register(AuthRequest(name = name, email = email, password = password))
                 _statusMessage.value = if (response.isSuccessful) {
+                    delay(1500)
                     "✅ Registrierung erfolgreich – jetzt einloggen"
                 } else {
+                    delay(1000)
                     "❌ Registrierung fehlgeschlagen: ${response.code()}"
                 }
             } catch (e: Exception) {
+                delay(1000)
                 _statusMessage.value = "❌ Netzwerkfehler: ${e.message}"
             } finally {
                 _isLoading.value = false
