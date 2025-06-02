@@ -31,8 +31,7 @@ import java.util.TimeZone
 fun ProfileScreen(
     navHostController: NavHostController,
     viewModel: ProfileViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
-    onEditClick: () -> Unit,
-    onAddEventClick: () -> Unit
+    onEditClick: () -> Unit
 ) {
     val yourEvents by viewModel.yourEvents.collectAsState()
     val acceptedEvents by viewModel.acceptedEvents.collectAsState()

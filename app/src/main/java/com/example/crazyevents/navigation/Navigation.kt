@@ -57,8 +57,7 @@ fun Navigation(modifier: Modifier = Modifier) {
             composable(Screen.ProfileScreen.route) {
                 ProfileScreen(
                     navController,
-                    onEditClick = { /* TODO */ },
-                    onAddEventClick = { /* TODO */ },
+                    onEditClick = { /* TODO */ }
                 )
             }
             composable(Screen.EventView.route){
@@ -78,7 +77,7 @@ fun Navigation(modifier: Modifier = Modifier) {
                 if (selectedEvent != null) {
                     Event(event = selectedEvent!!)
                 } else {
-                    // show loading or error
+                    //TODO: show loading or error
                 }
             }
         }
