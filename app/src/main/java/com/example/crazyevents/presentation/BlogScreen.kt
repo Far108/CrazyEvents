@@ -15,7 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.crazyevents.data.Creator
 import com.example.crazyevents.data.Event
+import com.example.crazyevents.login.UserSession
 import com.example.crazyevents.model.MainScreenViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -38,6 +40,13 @@ fun BlogScreen(
     var selectedTime: TimePickerState? by remember { mutableStateOf(null) }
     val formatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
     var showDialExample by remember { mutableStateOf(false) }
+
+    val creator: Creator? = UserSession.currentUser?.let {
+        Creator(
+            id = UserSession.currentUser!!.id,
+            name = UserSession.currentUser!!.name
+        )
+    }
 
 
     Column(
@@ -131,7 +140,7 @@ fun BlogScreen(
                 showError = title.isBlank()
                 if (!showError) {
                     // Handle successful form submission
-                    println("Form submitted: $title, $description, $location, $address, $date, $category")
+                    println("Form submitted: $title, $description, $creator, $location, $address, $date, $category")
 
                     viewModel.addEvent(Event(
                         title = title,
@@ -142,7 +151,7 @@ fun BlogScreen(
                         goingUserIds = emptyList(),
                         category = category,
                         id = "",
-                        creator = null,
+                        creator = creator,
                     ))
 
                     if (selectedTime != null) {
