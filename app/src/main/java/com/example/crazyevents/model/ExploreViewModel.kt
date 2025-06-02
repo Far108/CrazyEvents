@@ -32,7 +32,16 @@ class ExploreViewModel : ViewModel() {
     private val _interestedEvents = MutableStateFlow<Set<String>>(emptySet())
     val interestedEvents: StateFlow<Set<String>> = _interestedEvents.asStateFlow()
 
+    private val _numberOfInterests = MutableStateFlow<Int>(0)
+    val numberOfInterests: StateFlow<Int> = _numberOfInterests
+
     private var allEventsBackup: List<Event> = emptyList()
+
+    fun updatedNumberOfVisitors(event: Event, context: Context) {
+        viewModelScope.launch {
+            _numberOfInterests.value = event.goingUserIds.size
+        }
+    }
 
 
     fun updateEventInterest(eventId: String, context: Context) {
@@ -48,6 +57,8 @@ class ExploreViewModel : ViewModel() {
                     _interestedEvents.update {
                         if (goingTo.contains(userId)) it + eventId else it - eventId
                     }
+
+                    _numberOfInterests.value = goingTo.size
                     print(interestedEvents)
                 }
             } catch (e: Exception) {

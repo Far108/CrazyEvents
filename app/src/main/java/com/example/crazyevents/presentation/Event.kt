@@ -1,5 +1,6 @@
 package com.example.crazyevents.presentation
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,19 +12,39 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.crazyevents.data.Event
+import com.example.crazyevents.model.ExploreViewModel
 
 
 @Composable
 fun Event(
     event: Event
 ) {
+
+    val context = LocalContext.current
+    val activity = context as ComponentActivity
+    val viewModel: ExploreViewModel = viewModel(activity)
+    val interestedEvents by viewModel.interestedEvents.collectAsState()
+    val isInterested = interestedEvents.contains(event.id)
+
+    val numberOfVisitors by viewModel.numberOfInterests.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.updatedNumberOfVisitors(event, context)
+        viewModel.loadInterestedEvents(context)
+    }
+
 
     // Fullscreen layout with content alignment
     LazyColumn(
@@ -113,9 +134,9 @@ fun Event(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = "Besucher: ${event.going ?: 0}")
-                Button(onClick = { /* anzeigen */ }) {                //TODO: Add User to Event Visitor List
-                    Text("Besuchen!")
+                Text(text = "Besucher: $numberOfVisitors")
+                Button(onClick = { viewModel.updateEventInterest(event.id, context = context) }) {
+                    Text(if (!isInterested) "Besuchen!" else "Nicht interessiert")
                 }
             }
 
