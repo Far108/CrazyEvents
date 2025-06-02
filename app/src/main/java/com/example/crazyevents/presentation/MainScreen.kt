@@ -13,6 +13,7 @@ import androidx.navigation.NavHostController
 import com.example.crazyevents.data.Event
 import com.example.crazyevents.model.MainScreenViewModel
 import com.example.crazyevents.navigation.Screen
+import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,7 +27,13 @@ fun MainScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
     val reload by viewModel.reloadEventsTrigger.collectAsState()
-    var currentSort by remember { mutableStateOf(SortOption.NONE) } // Default sort
+    var currentSort by remember { mutableStateOf(SortOption.DATE_DESC) } // Default sort
+
+    var filterVisible by remember { mutableStateOf(false) }
+    var startDate by remember { mutableStateOf<LocalDate?>(null) }
+    var endDate by remember { mutableStateOf<LocalDate?>(null) }
+    var location by remember { mutableStateOf("") }
+    var category by remember { mutableStateOf(CategoriesEnum.ALL) }
 
 
     LaunchedEffect(reload) {
@@ -47,6 +54,11 @@ fun MainScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+
+                    Button(onClick = { filterVisible = !filterVisible }) {
+                        Text("Filter")
+                    }
+
                     SortMenu(selected = currentSort) { newSort ->
                         currentSort = newSort
                         viewModel.insertEvents(sortEvents(events, currentSort))
@@ -57,62 +69,100 @@ fun MainScreen(
         }
     ) { innerPadding ->
         // --- Integration of new data logic within the existing layout ---
-        Box( // Use a Box to center content based on state
+        LazyColumn(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize(),
-            contentAlignment = Alignment.Center // Center content within the Box
+                .fillMaxSize()
+                .padding(16.dp)
         ) {
+            if (filterVisible) {
+                item {
+                    FilterSection(
+                        isVisible = filterVisible,
+                        startDate = startDate,
+                        endDate = endDate,
+                        onStartDateChange = { startDate = it },
+                        onEndDateChange = { endDate = it },
+                        location = location,
+                        onLocationChange = { location = it },
+                        selectedCategory = category,
+                        onCategoryChange = { category = it }
+                    )
+                }
+            }
+
+
             when {
                 isLoading -> {
-                    CircularProgressIndicator() // Show loading indicator
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
                 }
 
                 error != null -> {
-                    // Show error message and a retry button
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text("Error loading events: $error", color = MaterialTheme.colorScheme.error)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = { viewModel.fetchEvents() }) { // Call ViewModel's fetch method
-                            Text("Retry")
+                    item {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                "Error loading events: $error",
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(onClick = { viewModel.fetchEvents() }) {
+                                Text("Retry")
+                            }
                         }
                     }
                 }
 
                 events.isNotEmpty() -> {
-                    // Display the sorted list of events using LazyColumn
-                    LazyColumn(modifier = Modifier.fillMaxSize()) {
-                        // If your Event class had an ID, you would use key = { it.id }
-                        items(events) { event ->
-                            EventCard(event = event) {navHostController.navigate(Screen.EventView.createRoute(event.id))}
+                    items(events) { event ->
+                        EventCard(event = event) {
+                            navHostController.navigate(
+                                Screen.EventView.createRoute(event.id)
+                            )
                         }
                     }
                 }
 
                 else -> {
-                    // Show message when there are no events
-                    Text("No events found.")
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("No events found.")
+                        }
+                    }
                 }
             }
         }
-        // --- End of integration ---
     }
 }
 
 
-fun sortEvents(
-    eventList: List<Event>,
-    option: SortOption
-): List<Event> {
-    return when (option) {
-        SortOption.NONE -> eventList
-        SortOption.DATE_ASC -> eventList.sortedBy { it.date }
-        SortOption.DATE_DESC -> eventList.sortedByDescending { it.date }
-        SortOption.TITLE -> eventList.sortedBy { it.title.lowercase() }
-        SortOption.LOCATION -> eventList.sortedBy { it.location.lowercase() }
-        SortOption.GOING -> eventList.sortedBy { it.going }
-    }
-}
+        fun sortEvents(
+            eventList: List<Event>,
+            option: SortOption
+        ): List<Event> {
+            return when (option) {
+                SortOption.NONE -> eventList
+                SortOption.DATE_ASC -> eventList.sortedBy { it.date }
+                SortOption.DATE_DESC -> eventList.sortedByDescending { it.date }
+                SortOption.TITLE -> eventList.sortedBy { it.title.lowercase() }
+                SortOption.LOCATION -> eventList.sortedBy { it.location.lowercase() }
+                SortOption.GOING -> eventList.sortedBy { it.going }
+            }
+        }

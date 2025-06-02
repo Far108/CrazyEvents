@@ -34,7 +34,7 @@ fun BlogScreen(
     var date by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
-    var category by remember { mutableStateOf("") }
+    var selectedCategory by remember { mutableStateOf<CategoriesEnum?>(null) }
 
 
     var showError by remember { mutableStateOf(false) }
@@ -58,7 +58,7 @@ fun BlogScreen(
             description.isNotBlank() &&
             location.isNotBlank() &&
             address.isNotBlank() &&
-            category.isNotBlank() &&
+            selectedCategory != null &&
             isDateValid
 
     if(allFieldsValid) showError = false
@@ -143,14 +143,12 @@ fun BlogScreen(
             }
         )
 
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = category,
-            onValueChange = { category = it },
-            label = { Text("Category") },
-            isError = showError && category.isBlank(),
-            singleLine = true,
+        CategoryDropdown(
+            selected = selectedCategory,
+            onCategorySelected = { selectedCategory = it },
+            modifier = Modifier.fillMaxWidth()
         )
+
 
         val submitMessage by viewModel.submitMessage.collectAsState()
 
@@ -166,7 +164,7 @@ fun BlogScreen(
                             address = address,
                             date = date,
                             goingUserIds = emptyList(),
-                            category = category,
+                            category = selectedCategory?.name ?: "",
                             id = "",
                             creator = creator,
                         )
