@@ -19,6 +19,7 @@ data class Event(
     val creator: Creator?,
     val date: String,
     val category: String,
+    val websiteUrl: String? = null,
     @SerializedName("goingTo")
     val goingUserIds: List<String>, // Each string in this list will be a MongoDB ObjectId
     // ... other fields like a local mainImageUrl if needed ...

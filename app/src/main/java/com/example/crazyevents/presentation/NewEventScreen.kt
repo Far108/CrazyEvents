@@ -35,6 +35,7 @@ fun BlogScreen(
     var location by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf<CategoriesEnum?>(null) }
+    var websiteUrl by remember { mutableStateOf("") }
 
 
     var showError by remember { mutableStateOf(false) }
@@ -92,6 +93,14 @@ fun BlogScreen(
                 keyboardType = KeyboardType.Email
             )
         )
+
+        OutlinedTextField(
+            value = websiteUrl,
+            onValueChange = { websiteUrl = it },
+            label = { Text("Website URL (optional)") },
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Uri)
+        )
+
 
         /*
                 DialUseStateExample(
@@ -167,6 +176,7 @@ fun BlogScreen(
                             category = selectedCategory?.name ?: "",
                             id = "",
                             creator = creator,
+                            websiteUrl = websiteUrl
                         )
                     )
                 }

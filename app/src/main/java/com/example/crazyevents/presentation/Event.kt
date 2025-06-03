@@ -2,8 +2,10 @@ package com.example.crazyevents.presentation
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -16,19 +18,24 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.crazyevents.data.Event
 import com.example.crazyevents.model.ExploreViewModel
 import com.example.crazyevents.model.PosterViewModel
+
 
 @Composable
 fun Event(
@@ -50,6 +57,7 @@ fun Event(
         viewModel.loadInterestedEvents(context)
         event.creator?.id?.let { isFollowButtonVisible=followModel.isFollowing(event.creator.id, context) } ?: true
     }
+
 
     // Fullscreen layout with content alignment
     LazyColumn(
@@ -106,6 +114,20 @@ fun Event(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+
+            event.websiteUrl?.let { url ->
+                Text(
+                    text = url,
+                    style = TextStyle(color = Color.Blue, textDecoration = TextDecoration.Underline),
+                    modifier = Modifier.clickable {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                        context.startActivity(intent)
+                    }
+                )
+            }
+
+
+            //Poster of this Event
 
             Row(
                 modifier = Modifier

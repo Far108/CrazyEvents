@@ -12,18 +12,20 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.crazyevents.data.Event
+import com.example.crazyevents.model.ExploreViewModel
 import com.example.crazyevents.model.HomeScreenViewModel
 import com.example.crazyevents.navigation.Screen
+import kotlinx.coroutines.flow.MutableStateFlow
 import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    viewModel: HomeScreenViewModel = viewModel(), // Use the MainViewModel
+    viewModel: HomeScreenViewModel = viewModel(),
+    filterViewModel: ExploreViewModel = viewModel(),
     navHostController: NavHostController
-    // Assuming filterButton and SortMenu are defined elsewhere
 ) {
-    // Collect the state flows from the ViewModel
+
     val events by viewModel.events.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
@@ -31,8 +33,7 @@ fun HomeScreen(
     var currentSort by remember { mutableStateOf(SortOption.DATE_DESC) } // Default sort
     var context = LocalContext.current
     var filterVisible by remember { mutableStateOf(false) }
-    var startDate by remember { mutableStateOf<LocalDate?>(null) }
-    var endDate by remember { mutableStateOf<LocalDate?>(null) }
+    var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
     var location by remember { mutableStateOf("") }
     var category by remember { mutableStateOf(CategoriesEnum.ALL) }
 
@@ -49,23 +50,25 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(title = {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
 
-                    Button(onClick = { filterVisible = !filterVisible }) {
-                        Text("Filter")
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(onClick = { filterVisible = !filterVisible }) {
+                            Text("Filter")
+                        }
+
+                        SortMenu(selected = currentSort) { currentSort = it }
                     }
 
-                    SortMenu(selected = currentSort) { newSort ->
-                        currentSort = newSort
-                        viewModel.insertEvents(sortEvents(events, currentSort))
-                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+
 
                 }
+
             })
         }
     ) { innerPadding ->
@@ -80,15 +83,40 @@ fun HomeScreen(
                 item {
                     FilterSection(
                         isVisible = filterVisible,
-                        startDate = startDate,
-                        endDate = endDate,
-                        onStartDateChange = { startDate = it },
-                        onEndDateChange = { endDate = it },
+                        selectedDate = selectedDate,
+                        onDateChange = { selectedDate = it },
                         location = location,
                         onLocationChange = { location = it },
                         selectedCategory = category,
                         onCategoryChange = { category = it }
                     )
+                }
+            }
+            item() {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Button(onClick = {
+                        viewModel.applyFiltersAndSort(
+                            category = if (category == CategoriesEnum.ALL) null else category.label,
+                            location = location,
+                            date = selectedDate,
+                            sort = currentSort
+                        )
+                    }) {
+                        Text("Suchen")
+                    }
+
+                    Button(onClick = {
+                        category = CategoriesEnum.ALL
+                        location = ""
+                        selectedDate = null
+                        viewModel.fetchMyEvents(context)
+                    }) {
+                        Text("Zurücksetzen")
+                    }
                 }
             }
 
@@ -119,7 +147,7 @@ fun HomeScreen(
                                 color = MaterialTheme.colorScheme.error
                             )
                             Spacer(modifier = Modifier.height(16.dp))
-                            Button(onClick = { viewModel.fetchEvents() }) {
+                            Button(onClick = { viewModel.fetchMyEvents(context) }) {
                                 Text("Retry")
                             }
                         }
@@ -152,18 +180,3 @@ fun HomeScreen(
         }
     }
 }
-
-
-        fun sortEvents(
-            eventList: List<Event>,
-            option: SortOption
-        ): List<Event> {
-            return when (option) {
-                SortOption.NONE -> eventList
-                SortOption.DATE_ASC -> eventList.sortedBy { it.date }
-                SortOption.DATE_DESC -> eventList.sortedByDescending { it.date }
-                SortOption.TITLE -> eventList.sortedBy { it.title.lowercase() }
-                SortOption.LOCATION -> eventList.sortedBy { it.location.lowercase() }
-                SortOption.GOING -> eventList.sortedBy { it.going }
-            }
-        }

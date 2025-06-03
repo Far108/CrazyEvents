@@ -16,10 +16,8 @@ import androidx.compose.ui.unit.dp
 @Composable     //ChatGPT
 fun FilterSection(
     isVisible: Boolean,
-    startDate: LocalDate?,
-    endDate: LocalDate?,
-    onStartDateChange: (LocalDate) -> Unit,
-    onEndDateChange: (LocalDate) -> Unit,
+    selectedDate: LocalDate?,
+    onDateChange: (LocalDate) -> Unit,
     location: String,
     onLocationChange: (String) -> Unit,
     selectedCategory: CategoriesEnum,
@@ -33,18 +31,10 @@ fun FilterSection(
 
     val today = remember { LocalDate.now() }
 
-    val startDatePickerDialog = remember {
+    val datePicker = remember {
         DatePickerDialog(context).apply {
             setOnDateSetListener { _, year, month, day ->
-                onStartDateChange(LocalDate.of(year, month + 1, day))
-            }
-        }
-    }
-
-    val endDatePickerDialog = remember {
-        DatePickerDialog(context).apply {
-            setOnDateSetListener { _, year, month, day ->
-                onEndDateChange(LocalDate.of(year, month + 1, day))
+                onDateChange(LocalDate.of(year, month + 1, day))
             }
         }
     }
@@ -56,13 +46,10 @@ fun FilterSection(
                 .padding(16.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Button(onClick = { startDatePickerDialog.show() }) {
-                    Text(text = "Von: ${startDate?.format(dateFormatter) ?: "Datum wählen"}")
+                Button(onClick = { datePicker.show() }) {
+                    Text("Datum wählen")
                 }
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(onClick = { endDatePickerDialog.show() }) {
-                    Text(text = "Bis: ${endDate?.format(dateFormatter) ?: "Datum wählen"}")
-                }
+
             }
 
             Spacer(modifier = Modifier.height(12.dp))

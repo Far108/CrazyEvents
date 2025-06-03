@@ -5,11 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.crazyevents.api.BackendApi
 import com.example.crazyevents.data.Event
+import com.example.crazyevents.presentation.SortOption
 import com.example.crazyevents.utils.TokenManager
+import com.example.crazyevents.utils.filterAndSortEvents
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 class HomeScreenViewModel : ViewModel() {
 
@@ -28,6 +31,7 @@ class HomeScreenViewModel : ViewModel() {
     private val _submitMessage = MutableStateFlow<String?>(null)
     val submitMessage: StateFlow<String?> = _submitMessage.asStateFlow()
 
+    private var allFollowedEventsBackup: List<Event> = emptyList()
 
     init {
         fetchEvents()
@@ -73,7 +77,9 @@ class HomeScreenViewModel : ViewModel() {
             try {
                 val response = BackendApi.api.getEvents() // Call API data method
                 if (response.isSuccessful) {
-                    _events.value = response.body() ?: emptyList()
+                    val events = response.body() ?: emptyList()
+                    _events.value = events
+                    allFollowedEventsBackup = events
                 } else {
                     _error.value = "Error: ${response.code()} - ${response.message()}"
                     print("Error: ${response.code()} - ${response.message()}")
@@ -96,7 +102,9 @@ class HomeScreenViewModel : ViewModel() {
             try {
                 val response = BackendApi.api.getMyEvents(id) // Call API data method
                 if (response.isSuccessful) {
-                    _events.value = response.body() ?: emptyList()
+                    val events = response.body() ?: emptyList()
+                    _events.value = events
+                    allFollowedEventsBackup = events
                 } else {
                     _error.value = "Error: ${response.code()} - ${response.message()}"
                     print("Error: ${response.code()} - ${response.message()}")
@@ -138,6 +146,16 @@ class HomeScreenViewModel : ViewModel() {
                 _isLoading.value = false
             }
         }
+    }
+
+    fun applyFiltersAndSort(
+        category: String?,
+        location: String,
+        date: LocalDate?,
+        sort: SortOption
+    ) {
+
+        _events.value = filterAndSortEvents(allFollowedEventsBackup, category, location, date, sort)
     }
 
 }
