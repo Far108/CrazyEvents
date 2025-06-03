@@ -70,7 +70,7 @@ fun BlogScreen(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text(text = "New event", style = MaterialTheme.typography.bodyMedium)
+        Text("Neues Event", style = MaterialTheme.typography.headlineMedium)
 
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),

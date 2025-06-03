@@ -3,6 +3,8 @@ package com.example.crazyevents.api
 import android.R
 import com.example.crazyevents.data.Event
 import com.example.crazyevents.data.Poster
+import com.example.crazyevents.data.UserProfile
+import com.example.crazyevents.data.UserUpdateRequest
 import com.example.crazyevents.model.AuthRequest
 import com.example.crazyevents.model.AuthResponse
 import retrofit2.Response
@@ -38,6 +40,14 @@ interface BackendApiService {
         @Path("eventId") eventId: String,
         @Header("Authorization") token: String
     ): Response<InterestResponse>
+
+    @PUT("users/{id}")
+    suspend fun updateUser(
+        @Header("Authorization") token: String,
+        @Path("id") userId: String,
+        @Body updateRequest: UserUpdateRequest
+    ): Response<UserProfile>
+
 }
 
 data class InterestResponse(
