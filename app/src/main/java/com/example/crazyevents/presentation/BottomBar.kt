@@ -16,7 +16,7 @@ import com.example.crazyevents.navigation.Screen
 fun BottomBar(viewModel: HomeScreenViewModel = viewModel(), navController: NavHostController, modifier: Modifier = Modifier) {
     val items = listOf(
         Screen.HomeScreen to Pair(Icons.Default.Home,    "Home"),
-        Screen.BlogScreen to Pair(Icons.Default.Add,    "Neues Event"),
+        Screen.BlogScreen to Pair(Icons.Default.Add,    "Event"),
         Screen.FollowScreen to Pair(Icons.Default.Face, "Poster"),   //TODO
         Screen.ExploreScreen to Pair(Icons.Default.Search, "Entdecken"),
         Screen.ProfileScreen to Pair(Icons.Default.Person,"Profil")

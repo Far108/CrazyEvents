@@ -1,7 +1,7 @@
 package com.example.crazyevents.api
 
-import android.R
 import com.example.crazyevents.data.Event
+import com.example.crazyevents.data.Following
 import com.example.crazyevents.data.Poster
 import com.example.crazyevents.data.UserProfile
 import com.example.crazyevents.data.UserUpdateRequest
@@ -22,6 +22,9 @@ interface BackendApiService {
 
     @GET("/posters/toggle/{fid}/{uid}") // Replace with the actual endpoint that returns a specific event by ID
     suspend fun toggleFollow(@Path("fid") fid: String, @Path("uid") uid: String): Response<Poster>
+
+    @GET("/posters/follow/{fid}/{uid}") // Replace with the actual endpoint that returns a specific event by ID
+    suspend fun isFollowing(@Path("fid") fid: String?, @Path("uid") uid: String): Response<Following>
 
     @GET("/events/{eventId}")
     suspend fun getEventbyId(@Path("eventId") eventId: String): Response<Event>

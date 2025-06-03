@@ -1,5 +1,7 @@
 package com.example.crazyevents.presentation
 
+import android.content.Context
+import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -8,13 +10,14 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.crazyevents.data.Event
 import com.example.crazyevents.model.ExploreViewModel
-
+import com.example.crazyevents.model.PosterViewModel
 
 @Composable
 fun Event(
@@ -35,16 +38,18 @@ fun Event(
     val context = LocalContext.current
     val activity = context as ComponentActivity
     val viewModel: ExploreViewModel = viewModel(activity)
+    val followModel: PosterViewModel = viewModel(activity)
     val interestedEvents by viewModel.interestedEvents.collectAsState()
     val isInterested = interestedEvents.contains(event.id)
+    var isFollowButtonVisible by remember { mutableStateOf(true) }
 
     val numberOfVisitors by viewModel.numberOfInterests.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.updatedNumberOfVisitors(event, context)
         viewModel.loadInterestedEvents(context)
+        event.creator?.id?.let { isFollowButtonVisible=followModel.isFollowing(event.creator.id, context) } ?: true
     }
-
 
     // Fullscreen layout with content alignment
     LazyColumn(
@@ -102,26 +107,37 @@ fun Event(
             Spacer(modifier = Modifier.height(12.dp))
 
 
-            //Poster of this Event
-
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Image(
-                        painter = painterResource(id = com.example.crazyevents.R.drawable.logo),
-                        contentDescription = "Profile Picture Poster",
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                    )
+                Button(
+                    onClick = {
+                        shareText(
+                            context,
+                            "Hi, check das aus: ${event.title} bei ${event.location} am ${event.date}. Mehr infos: ${event.description}."
+                        )
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Icon(imageVector = Icons.Default.Share, contentDescription = "Event teilen")
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = event.creator?.name ?: "Unknown")
+                    Text("Event teilen")
                 }
-                Button(onClick = { /* folgen */ }) {            //TODO: Follow logik hier
-                    Text("Folgen!")
+
+                Button(
+                    enabled = !isFollowButtonVisible,
+                    onClick = {
+                        followModel.updateFollowStatus(event.creator?.id.toString(), context = context)
+                        isFollowButtonVisible = true
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Icon(imageVector = Icons.Default.Check, contentDescription = "Poster folgen")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Folgen")
                 }
             }
 
@@ -161,4 +177,14 @@ fun Event(
 
         }
     }
+}
+
+fun shareText(context: Context, text: String) {
+    val sendIntent = Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_TEXT, text)
+        type = "text/plain"
+    }
+    val shareIntent = Intent.createChooser(sendIntent, "Teilen über")
+    context.startActivity(shareIntent)
 }

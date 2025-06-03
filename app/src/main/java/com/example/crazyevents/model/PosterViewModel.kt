@@ -7,9 +7,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.crazyevents.api.BackendApi
 import com.example.crazyevents.data.Poster
 import com.example.crazyevents.utils.TokenManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class PosterViewModel : ViewModel() {
@@ -28,6 +30,9 @@ class PosterViewModel : ViewModel() {
     fun triggerReload() {
         _reloadEventsTrigger.value = true
     }
+
+    private val _following = MutableStateFlow(true)
+    val following: StateFlow<Boolean> = _following
 
     fun resetReloadTrigger() {
         _reloadEventsTrigger.value = false
@@ -81,4 +86,24 @@ class PosterViewModel : ViewModel() {
             }
         }
     }
+
+    suspend fun isFollowing(follower: String, context: Context): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val token = TokenManager.getToken(context) ?: return@withContext false
+                val userId = TokenManager.getUserIdFromToken(token) ?: return@withContext false
+
+                val response = BackendApi.api.isFollowing(follower, userId)
+                if (response.isSuccessful) {
+                    val updatedPoster = response.body()
+                    updatedPoster?.follow ?: false
+                } else {
+                    false
+                }
+            } catch (e: Exception) {
+                false
+            }
+        }
+    }
+
 }
