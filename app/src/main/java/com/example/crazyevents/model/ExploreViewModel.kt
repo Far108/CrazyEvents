@@ -89,7 +89,7 @@ class ExploreViewModel : ViewModel() {
             try {
                 val response = BackendApi.api.getEvents()
                 if (response.isSuccessful) {
-                    val events = response.body() ?: emptyList()
+                    val events = response.body()?.sortedBy { it.date } ?: emptyList()
                     _events.value = events
                     allEventsBackup = events
                 } else {
