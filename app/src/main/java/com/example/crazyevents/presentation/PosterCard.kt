@@ -20,41 +20,37 @@ import com.example.crazyevents.model.PosterViewModel
 @Composable
 fun PosterCard(viewModel: PosterViewModel, poster: Poster, onClick: () -> Unit) {
     val context = LocalContext.current
-    val checked = poster.follow
+    val checked = poster.follow;
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
-            modifier = Modifier
-                .padding(horizontal = 12.dp, vertical = 8.dp), // Weniger Höhe
+            modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = poster.name,
-                    style = MaterialTheme.typography.titleSmall
-                )
+                Text(poster.name, style = MaterialTheme.typography.titleMedium)
             }
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = if (checked) "Follow" else "Not Follow",
-                    style = MaterialTheme.typography.labelSmall
-                )
+
+                Text(if (checked) "Follow" else "Not Follow")
+
                 Checkbox(
                     checked = checked,
                     onCheckedChange = {
                         viewModel.updateFollowStatus(poster.id, context)
+                        Thread.sleep(300)
                         viewModel.fetchPosters(context)
                     }
                 )
             }
         }
     }
-    Spacer(modifier = Modifier.height(8.dp))
+    Spacer(modifier = Modifier.padding(8.dp))
 }
