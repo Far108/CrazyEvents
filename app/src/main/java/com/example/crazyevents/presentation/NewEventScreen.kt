@@ -19,7 +19,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.crazyevents.data.Creator
 import com.example.crazyevents.data.Event
 import com.example.crazyevents.login.UserSession
-import com.example.crazyevents.model.MainScreenViewModel
+import com.example.crazyevents.model.HomeScreenViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -27,7 +27,7 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BlogScreen(
-    viewModel: MainScreenViewModel = viewModel(), // Use the MainViewModel
+    viewModel: HomeScreenViewModel = viewModel(), // Use the MainViewModel
 ) {
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }

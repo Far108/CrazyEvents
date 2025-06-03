@@ -14,12 +14,13 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.crazyevents.data.*
 import com.example.crazyevents.login.LoginRegisterScreen
-import com.example.crazyevents.model.MainScreenViewModel
+import com.example.crazyevents.model.HomeScreenViewModel
 import com.example.crazyevents.presentation.BlogScreen
 import com.example.crazyevents.presentation.BottomBar
 import com.example.crazyevents.presentation.Event
 import com.example.crazyevents.presentation.ExploreScreen
-import com.example.crazyevents.presentation.MainScreen
+import com.example.crazyevents.presentation.FollowScreen
+import com.example.crazyevents.presentation.HomeScreen
 import com.example.crazyevents.presentation.ProfileScreen
 import com.example.crazyevents.presentation.SettingsScreen
 
@@ -50,11 +51,14 @@ fun Navigation(
             composable(Screen.LoginScreen.route) {
                 LoginRegisterScreen(navController)
             }
-            composable(Screen.MainScreen.route) {
-                MainScreen( navHostController = navController)
+            composable(Screen.HomeScreen.route) {
+                HomeScreen( navHostController = navController)
             }
             composable(Screen.ExploreScreen.route) {
                 ExploreScreen(navHostController = navController)
+            }
+            composable(Screen.FollowScreen.route) {
+                FollowScreen(navHostController = navController)
             }
             composable(Screen.BlogScreen.route) {
                 BlogScreen()
@@ -66,7 +70,7 @@ fun Navigation(
             }
             composable(Screen.EventView.route){
                     backStackEntry ->
-                val viewModel: MainScreenViewModel = viewModel()
+                val viewModel: HomeScreenViewModel = viewModel()
                 val eventId = backStackEntry.arguments?.getString("eventId")
 
                 // trigger fetch if ID exists

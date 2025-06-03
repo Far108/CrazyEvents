@@ -93,7 +93,7 @@ fun LoginRegisterScreen(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = {
                     viewModel.login(email, password, context) {
-                        navHostController.navigate(Screen.MainScreen.route)
+                        navHostController.navigate(Screen.HomeScreen.route)
                     }
                 }) {
                     Text("Login")

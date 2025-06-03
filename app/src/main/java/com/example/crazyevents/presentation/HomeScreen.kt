@@ -7,18 +7,19 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.crazyevents.data.Event
-import com.example.crazyevents.model.MainScreenViewModel
+import com.example.crazyevents.model.HomeScreenViewModel
 import com.example.crazyevents.navigation.Screen
 import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(
-    viewModel: MainScreenViewModel = viewModel(), // Use the MainViewModel
+fun HomeScreen(
+    viewModel: HomeScreenViewModel = viewModel(), // Use the MainViewModel
     navHostController: NavHostController
     // Assuming filterButton and SortMenu are defined elsewhere
 ) {
@@ -28,7 +29,7 @@ fun MainScreen(
     val error by viewModel.error.collectAsState()
     val reload by viewModel.reloadEventsTrigger.collectAsState()
     var currentSort by remember { mutableStateOf(SortOption.DATE_DESC) } // Default sort
-
+    var context = LocalContext.current
     var filterVisible by remember { mutableStateOf(false) }
     var startDate by remember { mutableStateOf<LocalDate?>(null) }
     var endDate by remember { mutableStateOf<LocalDate?>(null) }
@@ -38,7 +39,7 @@ fun MainScreen(
 
     LaunchedEffect(reload) {
         if (reload) {
-            viewModel.fetchEvents()
+            viewModel.fetchMyEvents(context)
             viewModel.resetReloadTrigger()
         }
     }

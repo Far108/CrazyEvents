@@ -1,26 +1,25 @@
 package com.example.crazyevents.api
 
+import android.R
 import com.example.crazyevents.data.Event
 import com.example.crazyevents.data.Poster
 import com.example.crazyevents.model.AuthRequest
 import com.example.crazyevents.model.AuthResponse
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.POST
-import retrofit2.http.Path
-import retrofit2.http.Query
+import retrofit2.http.*
 
 interface BackendApiService {
     @GET("/events") // Replace with the actual endpoint that returns the list of events
     suspend fun getEvents(): Response<List<Event>>
 
-    @GET("/posters") // Replace with the actual endpoint that returns the list of posters
-    suspend fun getPosters(): Response<List<Poster>>
+    @GET("/myevents/{id}") // Replace with the actual endpoint that returns the list of events
+    suspend fun getMyEvents(@Path("id") id: String): Response<List<Event>>
 
-    @GET("/posters/toggle/{id}") // Replace with the actual endpoint that returns a specific event by ID
-    suspend fun toggleFollow(@Path("id") userId: String): Response<Poster>
+    @GET("/posters/{id}") // Replace with the actual endpoint that returns the list of posters
+    suspend fun getPosters(@Path("id") id: String): Response<List<Poster>>
+
+    @GET("/posters/toggle/{fid}/{uid}") // Replace with the actual endpoint that returns a specific event by ID
+    suspend fun toggleFollow(@Path("fid") fid: String, @Path("uid") uid: String): Response<Poster>
 
     @GET("/events/{eventId}")
     suspend fun getEventbyId(@Path("eventId") eventId: String): Response<Event>
