@@ -102,9 +102,10 @@ class HomeScreenViewModel : ViewModel() {
             try {
                 val response = BackendApi.api.getMyEvents(id) // Call API data method
                 if (response.isSuccessful) {
-                    val events = response.body() ?: emptyList()
-                    _events.value = events
-                    allFollowedEventsBackup = events
+                    val events = response.body() ?: emptyList<Event>()
+
+                    _events.value = events.sortedBy { it.date }
+                    allFollowedEventsBackup = events.sortedBy { it.date }
                 } else {
                     _error.value = "Error: ${response.code()} - ${response.message()}"
                     print("Error: ${response.code()} - ${response.message()}")
