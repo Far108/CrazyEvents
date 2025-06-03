@@ -1,9 +1,5 @@
 package com.example.crazyevents.presentation
 
-
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -51,6 +47,9 @@ fun ExploreScreen(
         modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp, vertical = 8.dp),
     ) {
         // Filter UI
+        SortMenu(selected = selectedSort) { selectedSort = it }
+        Spacer(modifier = Modifier.height(4.dp))
+
         CategoryFilter(selectedCategory) { selectedCategory = it }
         Spacer(modifier = Modifier.height(4.dp))
 
@@ -62,22 +61,43 @@ fun ExploreScreen(
         )
         Spacer(modifier = Modifier.height(4.dp))
 
-        // DateFilter(selectedDate) { selectedDate = it }
-        Spacer(modifier = Modifier.height(4.dp))
+        DateFilter(selectedDate) { selectedDate = it }
+        Spacer(modifier = Modifier.height(6.dp))
 
-        SortMenu(selected = selectedSort) { selectedSort = it }
-        Spacer(modifier = Modifier.height(4.dp))
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // Suchen-Button
+            Button(
+                onClick = {
+                    viewModel.applyFiltersAndSort(
+                        category = selectedCategory,
+                        location = selectedLocation,
+                        date = selectedDate,
+                        sort = selectedSort
+                    )
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Suchen")
+            }
 
-        Button(onClick = {
-            viewModel.applyFiltersAndSort(
-                category = selectedCategory,
-                location = selectedLocation,
-                date = selectedDate,
-                sort = selectedSort
-            )
-        }) {
-            Text("Suchen")
+            // Zurücksetzen-Button
+            Button(
+                onClick = {
+                    selectedCategory = ""
+                    selectedLocation = ""
+                    selectedDate = null
+                    selectedSort = SortOption.NONE
+                    viewModel.resetFilters()
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Zurücksetzen")
+            }
         }
+
 
         Spacer(modifier = Modifier.height(8.dp))
 

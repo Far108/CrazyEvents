@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 
 class ExploreViewModel : ViewModel() {
@@ -123,11 +124,15 @@ class ExploreViewModel : ViewModel() {
             }
         }
 
-
+        // Filter: Datum (nur yyyy-MM-dd beachten, Uhrzeit ignorieren)
         if (date != null) {
             filtered = filtered.filter {
-                val eventDate = LocalDate.parse(it.date.substring(0, 10))
-                eventDate == date
+                try {
+                    val eventDate = LocalDate.parse(it.date.substring(0, 10)) // ISO-Format: yyyy-MM-dd
+                    eventDate == date
+                } catch (e: Exception) {
+                    false // Falls ungültiges Datum → überspringen
+                }
             }
         }
 
