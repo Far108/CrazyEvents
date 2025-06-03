@@ -44,8 +44,8 @@ fun FollowScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
-
+                    Text("Event Poster", style = MaterialTheme.typography.headlineMedium)
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
             })
         }

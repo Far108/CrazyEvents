@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -19,34 +20,41 @@ import com.example.crazyevents.model.PosterViewModel
 @Composable
 fun PosterCard(viewModel: PosterViewModel, poster: Poster, onClick: () -> Unit) {
     val context = LocalContext.current
-    val checked = poster.follow;
+    val checked = poster.follow
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(8.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier
+                .padding(horizontal = 12.dp, vertical = 8.dp), // Weniger Höhe
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(poster.name, style = MaterialTheme.typography.titleMedium)
-//                Text(poster.id, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = poster.name,
+                    style = MaterialTheme.typography.titleSmall
+                )
             }
+
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(if (checked) "Follow" else "Not Follow")
+                Text(
+                    text = if (checked) "Follow" else "Not Follow",
+                    style = MaterialTheme.typography.labelSmall
+                )
                 Checkbox(
                     checked = checked,
                     onCheckedChange = {
                         viewModel.updateFollowStatus(poster.id, context)
-                        Thread.sleep(300)
                         viewModel.fetchPosters(context)
                     }
                 )
             }
         }
-        Spacer(modifier = Modifier.padding(8.dp))
     }
+    Spacer(modifier = Modifier.height(8.dp))
 }
