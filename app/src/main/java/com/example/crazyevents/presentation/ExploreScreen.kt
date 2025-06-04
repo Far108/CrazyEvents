@@ -1,43 +1,116 @@
 package com.example.crazyevents.presentation
 
-
-import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.crazyevents.data.Poster
-import com.example.crazyevents.model.PosterViewModel
+import androidx.navigation.NavHostController
+import com.example.crazyevents.data.Event
+import com.example.crazyevents.model.ExploreViewModel
+import com.example.crazyevents.navigation.Screen
+import com.example.crazyevents.utils.CategoryFilter
+import com.example.crazyevents.utils.DateFilter
+import java.time.LocalDate
 
 
 @Composable
-fun ExploreScreen(viewModel: PosterViewModel = viewModel()) {
-    val posters by viewModel.posters.collectAsState()
+fun ExploreScreen(
+    viewModel: ExploreViewModel = viewModel(),
+    navHostController: NavHostController
+) {
+    val events by viewModel.events.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
 
+    // Filter- und Sortier-States
+    var selectedCategory by remember { mutableStateOf<String?>(null) }
+    var selectedLocation by remember { mutableStateOf("") }
+    var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
+    var selectedSort by remember { mutableStateOf(SortOption.NONE) }
+
+    val context = LocalContext.current
+
     LaunchedEffect(Unit) {
-        viewModel.fetchPosters() // Trigger only once when Composable is first shown
+        viewModel.fetchExploreEvents()
+        viewModel.loadInterestedEvents(context)
     }
 
-    when {
-        isLoading -> CircularProgressIndicator()
-        error != null -> Text("Error: $error")
-        posters.isEmpty() -> Text("No posters found.")
-        else -> {
-            Text(text = "SearchPage")
-            Spacer(modifier = Modifier.height(16.dp))
-            LazyColumn(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+    Column(
+        modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp, vertical = 8.dp),
+    ) {
+        // Filter UI
+        SortMenu(selected = selectedSort) { selectedSort = it }
+        Spacer(modifier = Modifier.height(4.dp))
+
+        CategoryFilter(selectedCategory) { selectedCategory = it }
+        Spacer(modifier = Modifier.height(4.dp))
+
+        OutlinedTextField(
+            value = selectedLocation,
+            onValueChange = { selectedLocation = it },
+            label = { Text("Ort") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+
+        DateFilter(selectedDate) { selectedDate = it }
+        Spacer(modifier = Modifier.height(6.dp))
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // Suchen-Button
+            Button(
+                onClick = {
+                    viewModel.applyFiltersAndSort(
+                        category = selectedCategory,
+                        location = selectedLocation,
+                        date = selectedDate,
+                        sort = selectedSort
+                    )
+                },
+                modifier = Modifier.weight(1f)
             ) {
-                items(posters) { poster ->
-                    PosterCard(viewModel, poster)
+                Text("Suchen")
+            }
+
+            // Zurücksetzen-Button
+            Button(
+                onClick = {
+                    selectedCategory = ""
+                    selectedLocation = ""
+                    selectedDate = null
+                    selectedSort = SortOption.NONE
+                    viewModel.resetFilters()
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Zurücksetzen")
+            }
+        }
+
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Ergebnisanzeige
+        when {
+            isLoading -> CircularProgressIndicator()
+            error != null -> Text("Fehler: $error")
+            events.isEmpty() -> Text("Keine passenden Events gefunden.")
+            else -> LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(events) { event ->
+                    ExploreCard(viewModel, event) {
+                        navHostController.navigate(Screen.EventView.createRoute(event.id))
+                    }
                 }
             }
         }
@@ -45,42 +118,40 @@ fun ExploreScreen(viewModel: PosterViewModel = viewModel()) {
 }
 
 @Composable
-fun PosterCard(viewModel: PosterViewModel, poster: Poster) {
+fun ExploreCard(viewModel: ExploreViewModel, event: Event, onClick: () -> Unit) {
     val context = LocalContext.current
+    val interestedEvents by viewModel.interestedEvents.collectAsState()
+    val checked = interestedEvents.contains(event.id)
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(8.dp),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Row(modifier = Modifier.padding(8.dp)) {
-            Text(text = "Bild")
-            Spacer(modifier = Modifier.width(8.dp))
-            Column {
-                Text(poster.name, style = MaterialTheme.typography.titleMedium)
-                Text(poster.description, style = MaterialTheme.typography.bodySmall)
-                Text("Category: ${poster.category}", style = MaterialTheme.typography.bodySmall)
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(event.title, style = MaterialTheme.typography.titleMedium)
+                Text(event.description, style = MaterialTheme.typography.bodySmall, maxLines = 2)
+                Text("Typ: ${event.category}", style = MaterialTheme.typography.bodySmall)
             }
-            Spacer(modifier = Modifier.weight(1f))
-            Column {
-                var checked by remember { mutableStateOf(poster.isFollowed) }
-
-                Text(text = if (checked) "Follows" else "Unfollows", style = MaterialTheme.typography.bodySmall)
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(if (checked) "Going" else "Not Going")
                 Checkbox(
                     checked = checked,
                     onCheckedChange = {
-                        checked = it
-                        viewModel.updateFollowStatus(poster.id)
-                        /*
-                        Toast.makeText(
-                            context,
-                            if (it) "Following ${poster.name}" else "Unfollowed ${poster.name}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                         */
-                  },
+                        viewModel.updateEventInterest(event.id, context)
+                    }
                 )
             }
         }
     }
 }
+
+
+
+

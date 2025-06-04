@@ -7,36 +7,33 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.crazyevents.data.Event
-import com.example.crazyevents.model.MainScreenViewModel
+import com.example.crazyevents.model.PosterViewModel
 import com.example.crazyevents.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(
-    viewModel: MainScreenViewModel = viewModel(), // Use the MainViewModel
+fun FollowScreen(
+    viewModel: PosterViewModel = viewModel(), // Use the PosterViewModel
     navHostController: NavHostController
-    // Assuming filterButton and SortMenu are defined elsewhere
 ) {
     // Collect the state flows from the ViewModel
-    val events by viewModel.events.collectAsState()
+    val posters by viewModel.posters.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
     val reload by viewModel.reloadEventsTrigger.collectAsState()
-    var currentSort by remember { mutableStateOf(SortOption.NONE) } // Default sort
-
+    val context = LocalContext.current
 
     LaunchedEffect(reload) {
         if (reload) {
-            viewModel.fetchEvents()
+            viewModel.fetchPosters(context)
             viewModel.resetReloadTrigger()
         }
     }
-
-
+    Text("Abos")
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -47,11 +44,8 @@ fun MainScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    SortMenu(selected = currentSort) { newSort ->
-                        currentSort = newSort
-                        viewModel.insertEvents(sortEvents(events, currentSort))
-                    }
-
+                    Text("Event Poster", style = MaterialTheme.typography.headlineMedium)
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
             })
         }
@@ -76,43 +70,28 @@ fun MainScreen(
                     ) {
                         Text("Error loading events: $error", color = MaterialTheme.colorScheme.error)
                         Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = { viewModel.fetchEvents() }) { // Call ViewModel's fetch method
+                        Button(onClick = { viewModel.fetchPosters(context) }) { // Call ViewModel's fetch method
                             Text("Retry")
                         }
                     }
                 }
 
-                events.isNotEmpty() -> {
+                posters.isNotEmpty() -> {
                     // Display the sorted list of events using LazyColumn
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
                         // If your Event class had an ID, you would use key = { it.id }
-                        items(events) { event ->
-                            EventCard(event = event) {navHostController.navigate(Screen.EventView.createRoute(event.id))}
+                        items(posters) { poster ->
+                            PosterCard(viewModel, poster = poster) { navHostController.navigate(Screen.EventView.createRoute(poster.id)) }
                         }
                     }
                 }
 
                 else -> {
                     // Show message when there are no events
-                    Text("No events found.")
+                    Text("No posters found.")
                 }
             }
         }
         // --- End of integration ---
-    }
-}
-
-
-fun sortEvents(
-    eventList: List<Event>,
-    option: SortOption
-): List<Event> {
-    return when (option) {
-        SortOption.NONE -> eventList
-        SortOption.DATE_ASC -> eventList.sortedBy { it.date }
-        SortOption.DATE_DESC -> eventList.sortedByDescending { it.date }
-        SortOption.TITLE -> eventList.sortedBy { it.title.lowercase() }
-        SortOption.LOCATION -> eventList.sortedBy { it.location.lowercase() }
-        SortOption.GOING -> eventList.sortedBy { it.going }
     }
 }

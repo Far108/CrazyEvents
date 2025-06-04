@@ -10,12 +10,13 @@ android {
 
     defaultConfig {
         applicationId = "com.example.crazyevents"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
     }
 
     buildTypes {
@@ -60,6 +61,23 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     // Lifecycle KTX (for ViewModelScope)
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+    implementation(libs.androidx.compiler)
+    implementation("androidx.concurrent:concurrent-futures:1.1.0") {
+        exclude(group = "com.google.guava", module = "listenablefuture")
+    }
+    implementation(libs.places)
+
+    implementation("androidx.compose.material3:material3:1.2.1")
+    implementation("com.google.android.material:material:1.11.0")
+
+    implementation(libs.androidx.core.ktx.v1131)
+
+    implementation(libs.coil.compose)
+
+    dependencies {
+        coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+    }
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -67,4 +85,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    configurations.all {
+        exclude(group = "com.google.guava", module = "listenablefuture")
+    }
 }
