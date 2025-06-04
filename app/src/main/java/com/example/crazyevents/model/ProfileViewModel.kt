@@ -37,4 +37,38 @@ class ProfileViewModel : ViewModel() {
     val acceptedEvents = allEvents.map { list ->
         list.filter { UserSession.currentUser?.id in it.goingUserIds }
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+    private fun daysUntilEvent(event: Event): Long? {
+        return try {
+            val eventDate = java.time.LocalDate.parse(event.date.substring(0, 10))
+            val today = java.time.LocalDate.now()
+            java.time.temporal.ChronoUnit.DAYS.between(today, eventDate)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    val upcomingEvents1Day = acceptedEvents.map { list ->
+        list.filter { daysUntilEvent(it) == 1L }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+
+    val upcomingEvents3Days = acceptedEvents.map { list ->
+        list.filter { daysUntilEvent(it) == 3L }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+
+    val upcomingEvents7Days = acceptedEvents.map { list ->
+        list.filter { daysUntilEvent(it) == 7L }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+
+    val upcomingNotifications = acceptedEvents.map { list ->
+        list.filter {
+            val days = daysUntilEvent(it)
+            days == 1L || days == 3L || days == 7L
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+
+
+
+
+
 }

@@ -28,6 +28,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     navHostController: NavHostController,
@@ -39,124 +40,142 @@ fun ProfileScreen(
     val currentUser = UserSession.currentUser
     val userName = currentUser?.name ?: "Unbekannt"
 
-    val upcomingEvents = acceptedEvents.filter {!isPast(it.date)}
+    val upcomingEvents = acceptedEvents.filter { !isPast(it.date) }
     val oldEvents = acceptedEvents.filter { isPast(it.date) }
+    val upcoming by viewModel.upcomingNotifications.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.fetchEvents()
     }
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // Header
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("Profil", style = MaterialTheme.typography.headlineMedium)
-                TextButton(onClick = {
-                    navHostController.navigate("settings") // oder Screen.Settings.route
-                }) {
-                    Text("Bearbeiten")
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            if (upcoming.isNotEmpty()) {
+                TopAppBar(title = {
+                    Text(
+                        "🔔 Du hast bald ein Event: ${upcoming[0].title}",
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(12.dp)
+                    )
+                })
+            }
+        }
+    ) { innerPadding ->
+        LazyColumn(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            // Header
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Profil", style = MaterialTheme.typography.headlineMedium)
+                    TextButton(onClick = {
+                        navHostController.navigate("settings")
+                    }) {
+                        Text("Bearbeiten")
+                    }
                 }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Profile Info
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.logo),
+                        contentDescription = "Profile Picture",
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clip(CircleShape)
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column {
+                        Text(userName, style = MaterialTheme.typography.titleLarge)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Profile Info
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.logo),
-                    contentDescription = "Profile Picture",
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(CircleShape)
+            // Deine Events
+            item {
+                SectionWithTitle(
+                    navHostController,
+                    title = "Deine Events",
+                    events = yourEvents,
+                    showAddButton = true,
+                    onAddClick = { navHostController.navigate(Screen.BlogScreen.route) }
                 )
-                Spacer(modifier = Modifier.width(16.dp))
-                Column {
-                    Text(userName, style = MaterialTheme.typography.titleLarge)
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            // Zugesagt
+            item {
+                SectionWithTitle(
+                    navHostController,
+                    title = "Zugesagt",
+                    events = upcomingEvents
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            // Old Events
+            item {
+                Text("Old Events", style = MaterialTheme.typography.titleMedium)
+                EventList(navHostController = navHostController, events = oldEvents)
+            }
+        }
+    }
+}
+
+    //ChatGPT: Check Date
+    fun toEpochMs(dateString: String): Long {
+        return try {
+            val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+            sdf.timeZone = TimeZone.getDefault()
+            val date = sdf.parse(dateString)
+            date?.time ?: 0L
+        } catch (e: Exception) {
+            0L
+        }
+    }
+
+    fun isPast(dateString: String): Boolean {
+        return toEpochMs(dateString) < System.currentTimeMillis()
+    }
+
+
+    @Composable
+    fun SectionWithTitle(
+        navHostController: NavHostController,
+        title: String,
+        events: List<Event>,
+        showAddButton: Boolean = false,
+        onAddClick: (() -> Unit)? = null
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(title, style = MaterialTheme.typography.titleMedium)
+            if (showAddButton && onAddClick != null) {
+                IconButton(onClick = onAddClick) {
+                    Icon(Icons.Default.AddCircle, contentDescription = "Add Event")
                 }
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
         }
-
-        // Deine Events
-        item {
-            SectionWithTitle(
-                navHostController,
-                title = "Deine Events",
-                events = yourEvents,
-                showAddButton = true,
-                onAddClick = {navHostController.navigate(Screen.BlogScreen.route)}
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
-        // Zugesagt
-        item {
-            SectionWithTitle(
-                navHostController,
-                title = "Zugesagt",
-                events = upcomingEvents
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
-        // Old Events
-        item {
-            Text("Old Events", style = MaterialTheme.typography.titleMedium)
-            EventList(navHostController = navHostController, events = oldEvents)
-        }
+        EventList(navHostController = navHostController, events = events)
     }
-}
 
-//ChatGPT: Check Date
-fun toEpochMs(dateString: String): Long {
-    return try {
-        val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-        sdf.timeZone = TimeZone.getDefault()
-        val date = sdf.parse(dateString)
-        date?.time ?: 0L
-    } catch (e: Exception) {
-        0L
-    }
-}
-
-fun isPast(dateString: String): Boolean {
-    return toEpochMs(dateString) < System.currentTimeMillis()
-}
-
-@Composable
-fun SectionWithTitle(
-    navHostController: NavHostController,
-    title: String,
-    events: List<Event>,
-    showAddButton: Boolean = false,
-    onAddClick: (() -> Unit)? = null
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(title, style = MaterialTheme.typography.titleMedium)
-        if (showAddButton && onAddClick != null) {
-            IconButton(onClick = onAddClick) {
-                Icon(Icons.Default.AddCircle, contentDescription = "Add Event")
-            }
-        }
-    }
-    EventList(navHostController = navHostController, events = events)
-}
 
 @Composable
 fun EventList(navHostController: NavHostController, events: List<Event>) {
