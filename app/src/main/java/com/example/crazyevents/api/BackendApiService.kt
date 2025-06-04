@@ -63,6 +63,14 @@ interface BackendApiService {
     @GET("events/{id}")
     suspend fun getEventById(@Path("id") id: String): Response<Event>
 
+    @Multipart
+    @PUT("/events/{id}/gallery")
+    suspend fun uploadGalleryImages(
+        @Header("Authorization") token: String,
+        @Path("id") eventId: String,
+        @Part images: List<MultipartBody.Part>
+    ): Response<Event>
+
 }
 
 data class InterestResponse(

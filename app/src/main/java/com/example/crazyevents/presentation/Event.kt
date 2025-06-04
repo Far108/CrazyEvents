@@ -6,11 +6,11 @@ import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -55,7 +55,6 @@ fun Event(
     var isFollowButtonVisible by remember { mutableStateOf(true) }
 
     // Picture Upload
-    // Picture Upload
     val currentUserId = UserSession.currentUser?.id
     val isCreator = currentUserId == event.creator?.id
 
@@ -71,6 +70,15 @@ fun Event(
         }
     )
 
+    // Launcher für Galerie-Bilder (nur Gallery aktualisieren)
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetMultipleContents(),
+        onResult = { uris ->
+            if (uris.isNotEmpty()) {
+                viewModel.uploadGalleryImages(eventId = event.id, uris = uris, context = context)
+            }
+        }
+    )
 
     val numberOfVisitors by eventViewModel.numberOfInterests.collectAsState()
 
@@ -89,7 +97,6 @@ fun Event(
     ) {
 
         item {
-
             // Title
             Text(
                 text = event.title,
@@ -202,22 +209,33 @@ fun Event(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Nur Creator sieht diesen Button
             if (isCreator) {
-                Button(
-                    onClick = { launcher.launch("image/*") },
-                    modifier = Modifier.fillMaxWidth()
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Bilder hinzufügen")
+                    Button(
+                        onClick = { launcher.launch("image/*") },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Hauptbild ändern")
+                    }
+
+                    Button(
+                        onClick = { galleryLauncher.launch("image/*") },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Galerie hinzufügen")
+                    }
                 }
-                Spacer(modifier = Modifier.height(12.dp))
             }
 
-            // Placeholder photo row
             Text("Fotos", style = MaterialTheme.typography.titleMedium)
+
             LazyRow {
-                items(event.gallery.size) { imageUrl ->
+                items(event.gallery) { imageUrl ->
                     AsyncImage(
                         model = imageUrl,
                         contentDescription = "Event Foto",

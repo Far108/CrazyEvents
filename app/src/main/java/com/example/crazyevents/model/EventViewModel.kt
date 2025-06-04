@@ -54,6 +54,40 @@ class EventViewModel: ViewModel() {
         }
     }
 
+    fun uploadGalleryImages(eventId: String, uris: List<Uri>, context: Context) {
+        viewModelScope.launch {
+            val contentResolver = context.contentResolver
+            val token = TokenManager.getToken(context) ?: return@launch
+
+            val parts = uris.mapNotNull { uri ->
+                val inputStream = contentResolver.openInputStream(uri) ?: return@mapNotNull null
+                val bytes = inputStream.readBytes()
+                val requestBody = bytes.toRequestBody("image/*".toMediaTypeOrNull())
+                MultipartBody.Part.createFormData(
+                    "images", "image.jpg", requestBody
+                )
+            }
+
+            try {
+                val response = BackendApi.api.uploadGalleryImages(
+                    token = "Bearer $token",
+                    eventId = eventId,
+                    images = parts
+                )
+
+                if (response.isSuccessful) {
+                    val updatedEvent = response.body()
+                    Log.d("UPLOAD", "Galerie-Bilder erfolgreich hochgeladen")
+                } else {
+                    Log.e("UPLOAD", "Fehler: ${response.code()}")
+                }
+            } catch (e: Exception) {
+                Log.e("UPLOAD", "Netzwerkfehler: ${e.message}")
+            }
+        }
+    }
+
+
     fun getEventById(id: String) {
         viewModelScope.launch {
             try {
