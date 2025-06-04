@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,7 +20,6 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,7 +33,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.crazyevents.data.Event
+import com.example.crazyevents.login.UserSession
+import com.example.crazyevents.model.EventViewModel
 import com.example.crazyevents.model.ExploreViewModel
 import com.example.crazyevents.model.PosterViewModel
 
@@ -41,20 +45,38 @@ import com.example.crazyevents.model.PosterViewModel
 fun Event(
     event: Event
 ) {
-
     val context = LocalContext.current
     val activity = context as ComponentActivity
-    val viewModel: ExploreViewModel = viewModel(activity)
+    val eventViewModel: ExploreViewModel = viewModel(activity)
+    val viewModel: EventViewModel = viewModel()
     val followModel: PosterViewModel = viewModel(activity)
-    val interestedEvents by viewModel.interestedEvents.collectAsState()
+    val interestedEvents by eventViewModel.interestedEvents.collectAsState()
     val isInterested = interestedEvents.contains(event.id)
     var isFollowButtonVisible by remember { mutableStateOf(true) }
 
-    val numberOfVisitors by viewModel.numberOfInterests.collectAsState()
+    // Picture Upload
+    // Picture Upload
+    val currentUserId = UserSession.currentUser?.id
+    val isCreator = currentUserId == event.creator?.id
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetMultipleContents(),
+        onResult = { uris ->
+            if (uris.isNotEmpty()) {
+                viewModel.uploadEventImages(eventId = event.id, uris = uris, context = context)
+                viewModel.uploadEventImages(event.id, uris, context)
+                viewModel.getEventById(event.id)
+
+            }
+        }
+    )
+
+
+    val numberOfVisitors by eventViewModel.numberOfInterests.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.updatedNumberOfVisitors(event, context)
-        viewModel.loadInterestedEvents(context)
+        eventViewModel.updatedNumberOfVisitors(event, context)
+        eventViewModel.loadInterestedEvents(context)
         event.creator?.id?.let { isFollowButtonVisible=followModel.isFollowing(event.creator.id, context) } ?: true
     }
 
@@ -76,14 +98,14 @@ fun Event(
             )
 
             // Placeholder image banner
-            Image(
-                painter = painterResource(id = com.example.crazyevents.R.drawable.logo),
-                contentDescription = "Event Banner Placeholder",
+            AsyncImage(
+                model = event.mainImageUrl,
+                contentDescription = "Event Image",
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(180.dp)
-                    .clip(RoundedCornerShape(8.dp)),
-                contentScale = ContentScale.Crop
+                    .clip(RoundedCornerShape(8.dp))
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -173,30 +195,40 @@ fun Event(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(text = "Besucher: $numberOfVisitors")
-                Button(onClick = { viewModel.updateEventInterest(event.id, context = context) }) {
+                Button(onClick = { eventViewModel.updateEventInterest(event.id, context = context) }) {
                     Text(if (!isInterested) "Besuchen!" else "Nicht interessiert")
                 }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // Nur Creator sieht diesen Button
+            if (isCreator) {
+                Button(
+                    onClick = { launcher.launch("image/*") },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Bilder hinzufügen")
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+
             // Placeholder photo row
             Text("Fotos", style = MaterialTheme.typography.titleMedium)
             LazyRow {
-                items(5) { index ->
-                    Image(
-                        painter = painterResource(id = com.example.crazyevents.R.drawable.logo),
-                        contentDescription = "Foto $index",
+                items(event.gallery.size) { imageUrl ->
+                    AsyncImage(
+                        model = imageUrl,
+                        contentDescription = "Event Foto",
+                        contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .size(80.dp)
                             .padding(end = 8.dp)
-                            .clip(RoundedCornerShape(8.dp)),
-                        contentScale = ContentScale.Crop
+                            .clip(RoundedCornerShape(8.dp))
                     )
                 }
             }
-
-
         }
     }
 }

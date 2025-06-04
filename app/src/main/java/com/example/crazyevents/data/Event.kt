@@ -22,7 +22,8 @@ data class Event(
     val websiteUrl: String? = null,
     @SerializedName("goingTo")
     val goingUserIds: List<String>, // Each string in this list will be a MongoDB ObjectId
-    // ... other fields like a local mainImageUrl if needed ...
+    val mainImageUrl: String?,
+    val gallery: List<String>
 ) {
     val going: Int
         get() = goingUserIds.size

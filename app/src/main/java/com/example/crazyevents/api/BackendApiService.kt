@@ -7,6 +7,7 @@ import com.example.crazyevents.data.UserProfile
 import com.example.crazyevents.data.UserUpdateRequest
 import com.example.crazyevents.model.AuthRequest
 import com.example.crazyevents.model.AuthResponse
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -50,6 +51,17 @@ interface BackendApiService {
         @Path("id") userId: String,
         @Body updateRequest: UserUpdateRequest
     ): Response<UserProfile>
+
+    @Multipart
+    @PUT("events/{id}/images")
+    suspend fun uploadEventImages(
+        @Header("Authorization") token: String,
+        @Path("id") eventId: String,
+        @Part images: List<MultipartBody.Part>
+    ): Response<Event>
+
+    @GET("events/{id}")
+    suspend fun getEventById(@Path("id") id: String): Response<Event>
 
 }
 

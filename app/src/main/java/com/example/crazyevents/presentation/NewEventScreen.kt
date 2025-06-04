@@ -176,7 +176,9 @@ fun BlogScreen(
                             category = selectedCategory?.name ?: "",
                             id = "",
                             creator = creator,
-                            websiteUrl = websiteUrl
+                            websiteUrl = websiteUrl,
+                            gallery = emptyList(),
+                            mainImageUrl = ""
                         )
                     )
                 }

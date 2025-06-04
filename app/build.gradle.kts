@@ -72,6 +72,7 @@ dependencies {
 
     implementation(libs.androidx.core.ktx.v1131)
 
+    implementation(libs.coil.compose)
 
     dependencies {
         coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")

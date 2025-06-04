@@ -2,7 +2,7 @@ package com.example.crazyevents.data
 
 import com.example.crazyevents.R
 
-
+/*
 // Assume "currentUser" is the user viewing the profile screen.
 // This is just for making the dummy data more logical.
 val currentUserId = "currentUser123"
@@ -108,3 +108,4 @@ val dummyOldEvents: List<Event> = listOf(
 fun getAllDummyProfileEvents(): Triple<List<Event>, List<Event>, List<Event>> {
     return Triple(dummyYourEvents, dummyAcceptedEvents, dummyOldEvents)
 }
+*/
