@@ -90,7 +90,7 @@ fun ProfileScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Image(
-                        painter = painterResource(R.drawable.logo),
+                        painter = painterResource(R.drawable.user),
                         contentDescription = "Profile Picture",
                         modifier = Modifier
                             .size(64.dp)
