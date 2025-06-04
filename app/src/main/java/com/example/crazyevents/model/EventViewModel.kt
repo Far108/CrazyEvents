@@ -43,7 +43,6 @@ class EventViewModel: ViewModel() {
 
                 if (response.isSuccessful) {
                     val updatedEvent = response.body()
-                    // Option: State aktualisieren oder Snackbar
                     Log.d("UPLOAD", "Upload erfolgreich")
                 } else {
                     Log.e("UPLOAD", "Fehler: ${response.code()}")

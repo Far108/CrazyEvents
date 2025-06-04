@@ -3,6 +3,7 @@ package com.example.crazyevents.presentation
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -63,8 +64,8 @@ fun Event(
         onResult = { uris ->
             if (uris.isNotEmpty()) {
                 viewModel.uploadEventImages(eventId = event.id, uris = uris, context = context)
-                viewModel.uploadEventImages(event.id, uris, context)
-                viewModel.getEventById(event.id)
+                Toast.makeText(context, "Upload gestartet...", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Upload abgeschlossen ✅", Toast.LENGTH_SHORT).show()
 
             }
         }
@@ -76,6 +77,8 @@ fun Event(
         onResult = { uris ->
             if (uris.isNotEmpty()) {
                 viewModel.uploadGalleryImages(eventId = event.id, uris = uris, context = context)
+                Toast.makeText(context, "Upload gestartet...", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Upload abgeschlossen ✅", Toast.LENGTH_SHORT).show()
             }
         }
     )
@@ -157,7 +160,6 @@ fun Event(
 
 
             //Poster of this Event
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -177,18 +179,19 @@ fun Event(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Event teilen")
                 }
-
-                Button(
-                    enabled = !isFollowButtonVisible,
-                    onClick = {
-                        followModel.updateFollowStatus(event.creator?.id.toString(), context = context)
-                        isFollowButtonVisible = true
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(imageVector = Icons.Default.Check, contentDescription = "Poster folgen")
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Folgen")
+                if (!isCreator) {
+                    Button(
+                        enabled = !isFollowButtonVisible,
+                        onClick = {
+                            followModel.updateFollowStatus(event.creator?.id.toString(), context = context)
+                            isFollowButtonVisible = true
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(imageVector = Icons.Default.Check, contentDescription = "Poster folgen")
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Folgen")
+                    }
                 }
             }
 
